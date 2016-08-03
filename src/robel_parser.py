@@ -5,7 +5,26 @@ DEBUG = False
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
 		 'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'down', 'left', 'right', 'wander', \
-		'calm', 'closed', 'wide', 'ramble', 'smile', 'frown', 'point', 'Face',]
+		'calm', 'closed', 'wide', 'ramble', 'smile', 'frown', 'point', 'Face', 'initial_stand', 'pause', 'head_to_512', \
+		'legs_to_512', 'arms_to_512', 'stand', 'bow', 'head_40_left', 'head_90_left', 'head_40_right', 'head_90_right', \
+		'look_down', 'look_up', 'hug', 'raise_arms', 'right_arm_wave', 'right_arm_down', 'left_arm_wave', 'left_arm_down', \
+		'right_handshake', 'left_handshake', 'sit', 'squat', 'kneeling', 'left_lunge', 'right_lunge', 'right_splits', \
+		'left_splits', 'right_front_kick_40', 'right_front_kick_90', 'right_kick_down', 'left_front_kick_40', \
+		'left_front_kick_90', 'left_kick_down', 'right_side_kick_40', 'right_side_kick_90', 'right_side_kick_down', \
+		'left_side_kick_40', 'left_side_kick_90', 'left_side_kick_down', 'right_back_kick_40', 'right_back_kick_90', \
+		'left_back_kick_40', 'left_back_kick_90', 'right_knee_up', 'left_knee_up', 'legs_down', 'right_leg_lunge_forward', \
+		'left_leg_lunge_forward', 'running_start', 'running_start_2', 'running_right_forward_1', 'running_right_forward_2', \
+		'running_right_forward_3', 'running_left_forward_1', 'running_left_forward_2', 'running_left_forward_3', \
+		'hands_in_the_air_1', 'hands_in_the_air_2', 'gasp', 'police_freeze_1', 'police_freeze_2', 'police_freeze_3', \
+		'police_freeze_4', 'police_freeze_5', 'police_freeze_6', 'police_freeze_7', 'muscle_flex_1', 'muscle_flex_2', \
+		'muscle_flex_3', 'muscle_flex_4', 'muscle_flex_5', 'muscle_flex_6', 'muscle_flex_7', 'onguard_1', 'onguard_2', \
+		'onguard_3', 'onguard_4', 'onguard_5', 'onguard_6', 'yes_1', 'yes_2', 'yes_3', 'wow_1', 'wow_2', 'wow_3', 'wow_4', \
+		'wave_1', 'wave_2', 'wave_3', 'wave_4', 'wave_5', 'yawn_1', 'yawn_2', 'yawn_3', 'brah_1', 'brah_2', 'brah_3', \
+		'brah_4', 'brah_5', 'brah_6', 'brah_7', 'why_1', 'why_2', 'why_3', 'why_4', 'why_5', 'why_6', 'why_7', \
+		'lookdownup_1', 'lookdownup_2', 'lookdownup_3', 'lookdownup_4', 'lookdownup_5', 'lookdownup_6', 'lookdownup_7', \
+		'search_1', 'search_2', 'search_3', 'search_4', 'search_5', 'search_6', 'search_7', 'wave2_1', 'wave2_2', 'wave2_3', \
+		'wave2_4', 'wave2_5', 'wave2_6', 'wave2_7', 'clap_1', 'clap_2', 'clap_3', 'clap_4', 'clap_5', 'clap_6', 'clap_7', \
+		'oops_1', 'oops_2', 'oops_3', 'oops_4', 'oops_5', 'oops_6']
 ops = ['+', '&', '*']
 Symbol = str
 Env = dict
