@@ -24,7 +24,7 @@ acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'd
 		'lookdownup_1', 'lookdownup_2', 'lookdownup_3', 'lookdownup_4', 'lookdownup_5', 'lookdownup_6', 'lookdownup_7', \
 		'search_1', 'search_2', 'search_3', 'search_4', 'search_5', 'search_6', 'search_7', 'wave2_1', 'wave2_2', 'wave2_3', \
 		'wave2_4', 'wave2_5', 'wave2_6', 'wave2_7', 'clap_1', 'clap_2', 'clap_3', 'clap_4', 'clap_5', 'clap_6', 'clap_7', \
-		'oops_1', 'oops_2', 'oops_3', 'oops_4', 'oops_5', 'oops_6']
+		'oops_1', 'oops_2', 'oops_3', 'oops_4', 'oops_5', 'oops_6', 'muscle_combo_1', 'muscle_combo_2']
 ops = ['+', '&', '*']
 Symbol = str
 Env = dict
@@ -138,3 +138,30 @@ def eval(x, env=global_env):
 			print "proc: %s" % (proc)
 			print "args: %s" % (args)
 	return proc(*args)
+
+def parsex(exp):
+    print "Evaluating: %s" % (exp)
+    tokens = parse(exp)
+    word = eval(tokens)
+    print "Displaying: %s>>" % (word)
+    return word
+
+def foobarbaz(poo, vocab, loo=[], expansion=[]): #func, vocab):
+    word = parsex(poo)
+    expansion += [word]
+    print "Word: %s" % word
+    for c in word.replace('\n','').replace('\r','').split( ):
+        cmd = vocab[c]
+        print "%s: %s" % (c, cmd)
+        if c in vocab.keys() and type(cmd) == str:
+            foobarbaz(cmd, vocab, loo)
+            continue
+        print cmd
+        loo += [cmd]
+    else:
+        print "Foobar!"
+        print loo
+    	return loo, expansion
+#         break
+#     logging.debug('foobarbaz done!')
+    return
