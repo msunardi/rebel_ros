@@ -7,7 +7,7 @@ import rospy
 import makana_jimmy_program as mjp
 
 vocab = mjp.position_library
-vocab['muscle_combo_1'] = '(((muscle_flex_1 & muscle_flex_3) & hands_in_the_air_1) * 0.5)'
+vocab['muscle_combo_1'] = '((((muscle_flex_1 & muscle_flex_3) & hands_in_the_air_1) * 0.5) & stand)'
 # vocab['muscle_combo_2'] = '(((muscle_flex_2 & muscle_flex_4) & hands_in_the_air_2) * 0.5)'
 
 def parse(request):
