@@ -210,6 +210,44 @@ def XMLPositionList(XML_Out, Positions):
     print CurrentPosition
     XML_Out.write('           </PoseClass>\n')
 
+def MakePositionList(Positions, Timing=None):
+    ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW',\
+    'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH',\
+    'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL',\
+    'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT'] 
+    body = {'R_SHO_PITCH': 512,
+                 'L_SHO_PITCH': 512,
+                 'R_SHO_ROLL': 512,
+                 'L_SHO_ROLL': 512,
+                 'R_ELBOW': 512,
+                 'L_ELBOW': 512,
+                 'R_HIP_YAW': 512,
+                 'L_HIP_YAW': 512,
+                 'R_HIP_ROLL': 512,
+                 'L_HIP_ROLL': 512,
+                 'R_HIP_PITCH': 512,
+                 'L_HIP_PITCH': 512,
+                 'R_KNEE': 512,
+                 'L_KNEE': 512,
+                 'R_ANK_PITCH': 512,
+                 'L_ANK_PITCH': 512,
+                 'R_ANK_ROLL': 512,
+                 'L_ANK_ROLL': 512,
+                 'HEAD_PAN': 512,
+                 'HEAD_TILT': 512
+                }
+    timing = {'Time': 550,
+                'PauseTime': 100
+                }
+    CurrentPosition = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    for servo in range(0,20):
+        # CurrentPosition[servo] = int(round(InitialPosition[servo] + Step[servo]*position))
+        CurrentPosition[servo] = Positions[servo]        
+        body[ServoNames[servo]] = Positions[servo]
+    print body, timing
+    return [body, timing]
+
+
 
 def XMLStart(XML_Out): #writes beginning of the xml file
     XML_Out.write('<?xml version="1.0" encoding="utf-8"?>\n<ArrayOfPageClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">\n')
@@ -249,7 +287,10 @@ def Merge(PositionSequence1, PositionSequence2):  # this merges two sequences
 
 def XMLMiddle(XML_Out, PositionSequence):
     print "Pos sequence: %s" % PositionSequence
-    CurrentPosition = [512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512]
+    CurrentPoServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW',\
+    'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH',\
+    'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL',\
+    'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
     for i in range(len(PositionSequence)):     
         NextPosition = PositionSequence[i]
         print "NextPosition: %s" % NextPosition
@@ -259,6 +300,40 @@ def XMLMiddle(XML_Out, PositionSequence):
         XMLPositionList(XML_Out, NextPosition)
         CurrentPosition = NextPosition
         print "CurrentPosition: %s" % CurrentPosition
+
+def ProcessPositions(PositionSequence):
+    print "Pos sequence: %s" % PositionSequence
+    CurrentPosition = [512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512]
+    output_sequence = list()
+    for i in range(len(PositionSequence)):     
+        NextPosition = PositionSequence[i]
+        print "NextPosition: %s" % NextPosition
+        NextPosition = MergePositions(CurrentPosition, NextPosition)
+        # if  i != 0:
+        output_sequence += [MakePositionList(NextPosition)]
+        CurrentPosition = NextPosition
+        print "CurrentPosition: %s" % CurrentPosition
+
+    # return output_sequence
+    return collectSequence(output_sequence)
+
+def collectSequence(sequence):
+    ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW',\
+    'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH',\
+    'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL',\
+    'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
+
+    output = dict({key: [] for key in ServoNames})
+    output['Time'] = []
+    output['PauseTime'] = []
+    
+    for s in sequence:
+        for n in ServoNames:
+            output[n] += [s[0][n]]
+    #HACK!!
+        output['Time'] += [100 + (random.random() * 100)]
+        output['PauseTime'] += [random.random() * 300]
+    return output
 
 def Repeat(n, s):
     if n == 0:
@@ -280,11 +355,15 @@ def XMLEverything(XML_Out, PositionSequence): #all the xml stuff put in one def
     XMLMiddle(XML_Out, PositionSequence)
     XMLEnd(XML_Out)
 
+# Original/working version
+# def JimmyDo(seq):
+    # XML_Out = open('PositionSequence.pagelist', 'w') #opening the file to write xml info
+    # XMLEverything(XML_Out, seq)
+    # XML_Out.close()
 
+# new version - not creating .pagelist file
 def JimmyDo(seq):
-    XML_Out = open('PositionSequence.pagelist', 'w') #opening the file to write xml info
-    XMLEverything(XML_Out, seq)
-    XML_Out.close()
+    return ProcessPositions(seq)    # 
 
 
 

@@ -9,7 +9,7 @@ def rebel_client(xinput):
 	try:
 		rebel_parser = rospy.ServiceProxy('rebel_parser_server', Rebel)
 		resp = rebel_parser(xinput)
-		return resp.word
+		return resp.word, resp.sequence
 	except rospy.ServiceException, e:
 		print "Service call failed: %s" % e
 
