@@ -7,12 +7,17 @@ import rospy
 import makana_jimmy_program as mjp
 
 vocab = mjp.position_library
-vocab['muscle_combo_1'] = '((((muscle_flex_1 & muscle_flex_3) & hands_in_the_air_1) * 0.5) & stand)'
-vocab['muscle_combo_2'] = '(((muscle_flex_2 & muscle_flex_4) & hands_in_the_air_2) * 0.5)'
+vocab['muscle_combo_1'] = '((muscle_flex_1 & (muscle_flex_2 & (muscle_flex_3 & (muscle_flex_4 & (muscle_flex_5 & (muscle_flex_6 & muscle_flex_7)))))) * 0.5)'
+vocab['muscle_combo_2'] = '((muscle_flex_7 & (muscle_flex_6 & (muscle_flex_5 & (muscle_flex_4 & (muscle_flex_3 & (muscle_flex_2 & muscle_flex_1)))))) * 0.5)'
 vocab['combo_1'] = '(muscle_combo_1 + muscle_combo_2)'
-vocab['wave2'] = '(wave2_1 + (wave2_2 + (wave2_3 + (wave2_4 + (wave2_5 + (wave2_6 + wave2_7))))))'
-vocab['wave1'] = '(wave_1 + (wave_2 + (wave_3 + (wave_4 + wave_5))))'
-vocab['greeting'] = '(((wave_1 + wave_2) & (right_arm_down & left_arm_down)) * )'
+vocab['wave2'] = '(wave2_1 & (wave2_2 & (wave2_3 & (wave2_4 & (wave2_5 & (wave2_6 & wave2_7))))))'
+vocab['wave1'] = '(wave_1 & (wave_2 & (wave_3 & (wave_4 & wave_5))))'
+# vocab['greeting'] = '(((wave_1 + wave_2) & (right_arm_down & left_arm_down)) * )'
+vocab['greeting'] = '(((wave1 & (wave1 * 0.6)) + (wave2 & (wave2 * 0.6))) & stand)'
+vocab['onguard'] = '(onguard_1 & (onguard_2 & (onguard_3 & (onguard_4 & (onguard_5 & onguard_6 )))))'
+vocab['why'] = '(why_1 & (why_2 & (why_3 & (why_4 & (why_5 & (why_6 & why_7))))))'
+vocab['jumping'] = '(head_90_left & (head_90_right & (raise_arms & hug)))'
+vocab['leila_dances'] = '((head_40_right & (head_40_left & (raise_arms & (right_arm_wave & (left_arm_wave & look_up))))) * 0.8)'
 
 def parse(request):
 	# Parse request	
