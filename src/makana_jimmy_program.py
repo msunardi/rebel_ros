@@ -1,3 +1,4 @@
+import numpy as np
 import random
 import copy
 import subprocess
@@ -331,8 +332,10 @@ def collectSequence(sequence):
         for n in ServoNames:
             output[n] += [s[0][n]]
     #HACK!!
-        output['Time'] += [100 + (random.random() * 100)]
-        output['PauseTime'] += [random.random() * 300]
+        output['Time'] += [100 + (np.random.normal() * 100)]
+        output['PauseTime'] += [10 + np.random.random() * 200]
+        # output['Time'] += [100]
+        # output['PauseTime'] += [10]
     return output
 
 def Repeat(n, s):

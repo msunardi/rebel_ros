@@ -25,7 +25,8 @@ acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'd
 		'search_1', 'search_2', 'search_3', 'search_4', 'search_5', 'search_6', 'search_7', 'wave2_1', 'wave2_2', 'wave2_3', \
 		'wave2_4', 'wave2_5', 'wave2_6', 'wave2_7', 'clap_1', 'clap_2', 'clap_3', 'clap_4', 'clap_5', 'clap_6', 'clap_7', \
 		'oops_1', 'oops_2', 'oops_3', 'oops_4', 'oops_5', 'oops_6', 'muscle_combo_1', 'muscle_combo_2', 'combo_1', 'greeting',\
-		'wave1', 'wave2', 'onguard', 'why', 'jumping', 'leila_dances']
+		'wave1', 'wave2', 'onguard', 'why', 'jumping', 'leila_dances', 'police_freeze', 'muscle_flex', 'yes', 'wow', 'yawn',\
+		'brah', 'clap', 'oops']
 ops = ['+', '&', '*']
 Symbol = str
 Env = dict
@@ -121,6 +122,9 @@ def eval(x, env=global_env):
 	if isinstance(x, Symbol):
 		if x in chars or x in acts: # if x is a variable, return as-is
 			return "%s " % x
+		if x not in env:
+			print "%s is neither a known symbol or an operator." % x
+
 		return env[x]	# otherwise, x is an operator
 	elif isinstance(x, Number):
 		return x
