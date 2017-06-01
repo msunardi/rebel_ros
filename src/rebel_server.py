@@ -26,6 +26,23 @@ vocab['yawn'] = '((yawn_1 & (yawn_2 & yawn_3)) & stand)'
 vocab['brah'] = '((brah_1 & (brah_2 & (brah_3 & (brah_4 & (brah_5 & (brah_6 & brah_7)))))) & stand)'
 vocab['clap'] = '((clap_1 & (clap_2 & (clap_3 & (clap_4 & (clap_5 & (clap_6 & clap_7)))))) & stand)'
 vocab['oops'] = '((oops_1 & (oops_2 & (oops_3 & (oops_4 & (oops_5 & oops_6))))) & stand)'
+vocab['search'] = '((search_1 & (search_2 & (search_3 & (search_4 & (search_5 & (search_6 & search_7)))))) & stand)'
+vocab['wave3'] = '((wave3_0 & (wave3_1 & (wave3_2 & (wave3_3 & (wave3_4 & (wave3_5 & wave3_6)))))) & stand)'
+vocab['jump1'] = '((jump1_0 & (jump1_1 & (jump1_2 & (jump1_3 & (jump1_4 & (jump1_5 & jump1_6)))))) & stand)'
+vocab['pickupbox'] = '((pickupbox_0 & (pickupbox_1 & (pickupbox_2 & (pickupbox_3 & (pickupbox_4 & pickupbox_5))))) & stand)'
+vocab['victorypose'] = '((victorypose_0 & (victorypose_1 & (victorypose_2 & (victorypose_3 & (victorypose_4 & (victorypose_5 & victorypose_6)))))) & stand)'
+vocab['victorypose_copy'] = '((victorypose_copy_0 & (victorypose_copy_1 & (victorypose_copy_2 & (victorypose_copy_3 & (victorypose_copy_4 & (victorypose_copy_5 & victorypose_copy_6)))))) & stand)'
+vocab['wait_0'] = '((wait_0_0 & (wait_0_1 & (wait_0_2 & (wait_0_3 & (wait_0_4 & (wait_0_5 & wait_0_6)))))) & stand)'
+vocab['wait_1'] = '((wait_1_0 & (wait_1_1 & (wait_1_2 & (wait_1_3 & (wait_1_4 & (wait_1_5 & wait_1_6)))))) & stand)'
+vocab['alas'] = '((alas_0 & (alas_1 & (alas_2 & (alas_3 & (alas_4 & (alas_5 & alas_6)))))) & stand)'
+vocab['alas_mirror'] = '((alas_mirror_0 & (alas_mirror_1 & (alas_mirror_2 & (alas_mirror_3 & (alas_mirror_4 & (alas_mirror_5 & alas_mirror_6)))))) & stand)'
+vocab['alas2'] = '((alas_2_0 & (alas_2_1 & (alas_2_2 & (alas_2_3 & (alas_2_4 & (alas_2_5 & alas_2_6)))))) & stand)'
+vocab['nope'] = '((nope_nope_0 & (nope_nope_1 & (nope_nope_2 & (nope_nope_3 & (nope_nope_4 & (nope_nope_5 & nope_nope_6)))))) & stand)'
+vocab['waiting'] = '((yawn + (nope + (wait0 + wait1))) * 0.7)'
+
+# Add new keys
+rp.acts += vocab.keys()
+# rp.update_vocab(vocab.keys())
 
 def parse(request):
 	# Parse request	
