@@ -65,6 +65,10 @@ def repeat(expression, r=0.5):
 	out = ''
 	# for i in range(random.randint(0,r)):
 	# 	out = '%s%s' % (out, eval(expression))	# evaluate expression each repetition
+	if r - 1.0 >= 0.0:
+		out = '%s%s%s' % (out, eval(expression), repeat(expression, r-1.0))
+		return out
+
 	if random.random() <= r:
 		out = '%s%s%s' % (out, eval(expression), repeat(expression, r))
 	
