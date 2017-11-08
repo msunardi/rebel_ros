@@ -46,47 +46,47 @@ rp.acts += vocab.keys()
 # rp.update_vocab(vocab.keys())
 
 def parse(request):
-	# Parse request	
-	# If expression, expand
-	expression = request.expression
-	# word = rp.eval(rp.parse(expression))
-	# word = parsex(expression)
-	sequence = []
-	expansion = []
-	sequence, expansion = rp.foobarbaz(expression, vocab)
-	# If generic behavior name, choose a corresponding expression
-	# print "Word: %s" % word
+    # Parse request
+    # If expression, expand
+    expression = request.expression
+    # word = rp.eval(rp.parse(expression))
+    # word = parsex(expression)
+    sequence = []
+    expansion = []
+    sequence, expansion = rp.expand_sequence(expression, vocab)
+    # If generic behavior name, choose a corresponding expression
+    # print "Word: %s" % word
 
-	# THIS IS A HACK! THE SEQUENCE WILL KEEP EXPANDING OTHERWISE
-	# Still need to figure out why it is so
-	expansion_length = len(expansion[-1].split(" "))
-	sequence = sequence[-expansion_length:]
-	print "Sequence [PRE]: %s" % sequence
+    # THIS IS A HACK! THE SEQUENCE WILL KEEP EXPANDING OTHERWISE
+    # Still need to figure out why it is so
+    expansion_length = len(expansion[-1].split(" "))
+    sequence = sequence[-expansion_length:]
+    print "Sequence [PRE]: %s" % sequence
 
-	# Return expanded string or sequence?
-	
-	# sequence = [vocab[k] for k in word.replace('\n','').replace('\r','').split( )]
-	sequence = mjp.JimmyDo(sequence)
+    # Return expanded string or sequence?
+
+    # sequence = [vocab[k] for k in word.replace('\n','').replace('\r','').split( )]
+    sequence = mjp.JimmyDo(sequence)
 
 
-	print "Evaluating expression: \"%s\" to: \"%s\"" % (expression, expansion)
-	print "Sequence: %s" % sequence
-	
-	# expansion = None
-	# print expansion
-	if len(expansion) > 0:
-		response = str(expansion[-1])
-		print "Response: %s" % response
-	# for s, v in sequence:
-	# 	print "%s: %s" % (s, v)
-	return RebelResponse(response, str(sequence))
-	# return {'word': response, 'sequence': sequence}
+    print "Evaluating expression: \"%s\" to: \"%s\"" % (expression, expansion)
+    print "Sequence: %s" % sequence
+
+    # expansion = None
+    # print expansion
+    if len(expansion) > 0:
+        response = str(expansion[-1])
+        print "Response: %s" % response
+    # for s, v in sequence:
+    # 	print "%s: %s" % (s, v)
+    return RebelResponse(response, str(sequence))
+    # return {'word': response, 'sequence': sequence}
 
 def rebel_server():
-	rospy.init_node('rebel_parser_server')
-	s = rospy.Service('rebel_parser_server', Rebel, parse)
-	print "Ready to parse"
-	rospy.spin()
+    rospy.init_node('rebel_parser_server')
+    s = rospy.Service('rebel_parser_server', Rebel, parse)
+    print "Ready to parse"
+    rospy.spin()
 
 if __name__ == "__main__":
-	rebel_server()
+    rebel_server()
