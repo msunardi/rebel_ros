@@ -1,6 +1,6 @@
 import random, math
 
-DEBUG = False
+DEBUG = True
 
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
          'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -30,7 +30,7 @@ acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'd
         # 'wave3_0', 'wave3_1', 'wave3_2', 'wave3_3', 'wave3_4', 'wave3_5', 'wave3_6', 'jump1_0', 'jump1_1', 'jump1_2', 'jump1_3', 'jump1_4', 'jump1_5', 'jump1_6', 'pickupbox_0', 'pickupbox_1', 'pickupbox_2', 'pickupbox_3', 'pickupbox_4', 'pickupbox_5', 'victorypose_0', 'victorypose_1', 'victorypose_2', 'victorypose_3', 'victorypose_4', 'victorypose_5', 'victorypose_6', 'victorypose_copy1_0', 'victorypose_copy1_1', 'victorypose_copy1_2', 'victorypose_copy1_3', 'victorypose_copy1_4', 'victorypose_copy1_5', 'victorypose_copy1_6', 'wait_0_0', 'wait_0_1', 'wait_0_2', 'wait_0_3', 'wait_0_4', 'wait_0_5', 'wait_0_6', 'wait_1_0', 'wait_1_1', 'wait_1_2', 'wait_1_3', 'wait_1_4', 'wait_1_5', 'wait_2_0', 'wait_2_1', 'wait_2_2', 'wait_2_3', 'wait_2_4', 'wait_2_5', 'wait_2_6', 'alas_0', 'alas_1', 'alas_2', 'alas_3', 'alas_4', 'alas_5', 'alas_6', 'alas_mirror_0', 'alas_mirror_1', 'alas_mirror_2', 'alas_mirror_3', 'alas_mirror_4', 'alas_mirror_5', 'alas_mirror_6', 'alas_2_0', 'alas_2_1', 'alas_2_2', 'alas_2_3', 'alas_2_4', 'alas_2_5', 'alas_2_6', 'nope_nope_0', 'nope_nope_1', 'nope_nope_2', 'nope_nope_3', 'nope_nope_4', 'nope_nope_5', 'nope_nope_6',\
         # 'wave3', 'jump1', 'pickupbox', 'victorypose', 'victorypose_copy', 'wait_0', 'wait_1', 'wait_2', 'alas', 'alas_mirror', 'alas2', 'nope', 'waiting']
 ops = ['+', '&', '*']
-extension = ['|'] 	# merge/parallel
+extension = ['|'] 	# concurrent/parallel
 ops = ops + extension
 Symbol = str
 Env = dict
@@ -53,30 +53,39 @@ Number = (int, float)
 
 def union(*args):
     if DEBUG:
-        print "[UNION] args: %s" % (args)
+        print "[UNION] args:", args
     action1 = args[0]
+    action2 = args[1:]
     p = 0.5
-    if type(args[-1]) == float:
-        p = args[-1]
-        if len(args[:-1]) == 2:
-            action2 = args[1]
-        else:
-            action2 = args[1:-1]
-    else:
-        action2 = args[1:]
+    try:
+        if type(args[-1]) == float:
+            p = args[-1]
+            if len(args[:-1]) == 2:
+                action2 = args[1]
+            else:
+                action2 = args[1:-1]
 
-    check_instances = [isinstance(arg, Symbol) for arg in action2]
+            # clean up args
+            for c in action2:
+                c = c.replace('\n', '').replace('\r', '')
+
+    except ValueError as ve:
+        # else:
+        #   action2 = args[1:]
+        pass
+
+    check_instances = [isinstance(arg, Symbol) for arg in action2[:-1]]
     if not all(check_instances):
         raise SyntaxError("Invalid action types!  %s." % check_instances)
 
     if 0.0 < p < 1.0 and random.random() >= p:
         if DEBUG:
-            print "[UNION] action2: %s" % action2
-        if type(action2) == tuple:
-            a2 = list(action2) + [p]
-            return union(*a2)
+            print "[UNION] action2: %s" % [action2]
+        if type(action2) == tuple and len(action2) >= 3:
+            # a2 = list(action2) + [p]
+            return union(*action2)
         else:
-            return action2
+            return action2[0]
     return action1
 
 
@@ -86,9 +95,12 @@ def concatenate(*args):
     p = 1.0
     actions = args
 
-    if float(args[-1]) and type(args[-1]) == float:
-        p = args[-1]
-        actions = args[:-1]
+    try:
+        if float(args[-1]) and type(args[-1]) == float:
+            p = args[-1]
+            actions = args[:-1]
+    except ValueError as ve:
+        pass
 
     if 0.0 < p < 1.0:
         if random.random() < p:
@@ -106,7 +118,7 @@ def concatenate(*args):
 # BUG: repeat should evaluate input
 # Example:
 # (a + b)* should yield: a, b, ab, aaaa, abab, abba, aaab, ...
-# instead it's currently evaluating (a+b) first, then repeats that 
+# instead it's currently evaluating (a+b) first, then repeats that
 # Update 2/4/15: FIXED!
 # Update 5/3/15: argument is now float (probability)
 def repeat(expression, r=0.5):
@@ -131,8 +143,14 @@ def repeat(expression, r=0.5):
 
     return out
 
-def merge(action1, action2):
-    return action1 + '|' + action2
+
+def concurrent(*args):
+    if DEBUG:
+        print "[MERGE] args: %s" % list(args)
+    # return action1 + '|' + action2
+    if len(args) <= 1:
+        return args[0] + ' ; '
+    return " | ".join([eval(args[0])] + [concurrent(*args[1:])])
 
 # Source: norvig.com/lispy.html
 def standard_env():
@@ -142,7 +160,7 @@ def standard_env():
         '+': union,
         '&': concatenate,
         '*': repeat,
-        '|': merge,
+        '|': concurrent,
         'number?': lambda x: isinstance(x, Number),
         })
     return env
@@ -191,6 +209,7 @@ def eval(x, env=global_env):
             return "%s " % x
         if x not in env:
             print "%s is neither a known symbol or an operator." % x
+            return x
 
         return env[x]	# otherwise, x is an operator
     elif isinstance(x, Number):
@@ -235,7 +254,7 @@ def parsex(exp):
 def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
     word = parsex(sequence)
     expansion += [word]
-    print "Word: %s" % word
+    print "Word: ", word
     for c in word.replace('\n','').replace('\r','').split():
         cmd = vocab[c]
         print "%s: %s" % (c, cmd)
@@ -250,4 +269,4 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
         return loo, expansion
 #         break
 #     logging.debug('foobarbaz done!')
-    return
+#     return "Done"
