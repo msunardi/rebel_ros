@@ -1,3 +1,4 @@
+import matplotlib.pylab as plt
 import robel_parser as rp
 from makana_jimmy_program import position_library
 
@@ -39,6 +40,40 @@ vocab['waiting'] = '(* (+ yawn nope wait_0 wait_1) 0.7)'
 # Add new keys
 rp.acts += vocab.keys()
 
+def test_probabilities(exp, n=1000):
+    d = {}
+    for i in range(n):
+        foo = rp.parsex(exp)
+        # foo = len(foo.replace(' ',''))
+        if foo in d.keys():
+            d[foo] += 1
+        else:
+            d[foo] = 1
+    # lists = sorted(d.items())
+    # x, y = zip(*lists)  # unpack a list of pairs into two tuples
+    # print x
+    # print y
+    # for a, b in zip(x, y):
+    #     plt.text(a,b, str("%s\n%s" % (a, b)))
+    plt.xlabel("String length")
+    plt.ylabel("Occurence")
+    plt.title("Union: %s P=0.3 N=1000" % exp)
+    # plt.plot(x, y)
+
+    # For bar chart (use on Union)
+    # See for labeling: https://stackoverflow.com/a/30229062
+    l = sorted(d.items())
+    x, y = zip(*l)
+    plt.bar(range(len(y)), y, align="center")
+    plt.xticks(range(len(x)), x)
+
+    plt.show()
+
+DEBUG=True
+
 if __name__=='__main__':
-    # rp.parsex('(+ a b)')
-    rp.expand_sequence('(& waiting (+ oops wave3))', vocab)
+    to_parse = '(+ a b c d e 0.26)'
+    # rp.parsex(to_parse)
+    x = test_probabilities(to_parse)
+    print x
+    # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)

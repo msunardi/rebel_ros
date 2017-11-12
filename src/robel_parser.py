@@ -1,6 +1,6 @@
 import random, math
 
-DEBUG = True
+DEBUG = False
 
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
          'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
@@ -78,12 +78,13 @@ def union(*args):
     if not all(check_instances):
         raise SyntaxError("Invalid action types!  %s." % check_instances)
 
+    print "[UNION] p: %s" % p
     if 0.0 < p < 1.0 and random.random() >= p:
         if DEBUG:
             print "[UNION] action2: %s" % [action2]
-        if type(action2) == tuple and len(action2) >= 3:
-            # a2 = list(action2) + [p]
-            return union(*action2)
+        if type(action2) == tuple and len(action2) >= 2:
+            a2 = list(action2) + [p]
+            return union(*a2)
         else:
             return action2[0]
     return action1
@@ -103,7 +104,7 @@ def concatenate(*args):
         pass
 
     if 0.0 < p < 1.0:
-        if random.random() < p:
+        if random.random() > p:
             return "%s" % actions[0]
         else:
             if len(actions[1:]) < 2:
