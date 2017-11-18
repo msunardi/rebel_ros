@@ -26,11 +26,11 @@ acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'd
         'wave2_4', 'wave2_5', 'wave2_6', 'wave2_7', 'clap_1', 'clap_2', 'clap_3', 'clap_4', 'clap_5', 'clap_6', 'clap_7', \
         'oops_1', 'oops_2', 'oops_3', 'oops_4', 'oops_5', 'oops_6', 'muscle_combo_1', 'muscle_combo_2', 'combo_1', 'greeting',\
         'wave1', 'wave2', 'onguard', 'why', 'jumping', 'leila_dances', 'police_freeze', 'muscle_flex', 'yes', 'wow', 'yawn',\
-        'brah', 'clap', 'oops', 'search',]
+        'brah', 'clap', 'oops', 'search', 'up', 'down', 'left', 'right']
         # 'wave3_0', 'wave3_1', 'wave3_2', 'wave3_3', 'wave3_4', 'wave3_5', 'wave3_6', 'jump1_0', 'jump1_1', 'jump1_2', 'jump1_3', 'jump1_4', 'jump1_5', 'jump1_6', 'pickupbox_0', 'pickupbox_1', 'pickupbox_2', 'pickupbox_3', 'pickupbox_4', 'pickupbox_5', 'victorypose_0', 'victorypose_1', 'victorypose_2', 'victorypose_3', 'victorypose_4', 'victorypose_5', 'victorypose_6', 'victorypose_copy1_0', 'victorypose_copy1_1', 'victorypose_copy1_2', 'victorypose_copy1_3', 'victorypose_copy1_4', 'victorypose_copy1_5', 'victorypose_copy1_6', 'wait_0_0', 'wait_0_1', 'wait_0_2', 'wait_0_3', 'wait_0_4', 'wait_0_5', 'wait_0_6', 'wait_1_0', 'wait_1_1', 'wait_1_2', 'wait_1_3', 'wait_1_4', 'wait_1_5', 'wait_2_0', 'wait_2_1', 'wait_2_2', 'wait_2_3', 'wait_2_4', 'wait_2_5', 'wait_2_6', 'alas_0', 'alas_1', 'alas_2', 'alas_3', 'alas_4', 'alas_5', 'alas_6', 'alas_mirror_0', 'alas_mirror_1', 'alas_mirror_2', 'alas_mirror_3', 'alas_mirror_4', 'alas_mirror_5', 'alas_mirror_6', 'alas_2_0', 'alas_2_1', 'alas_2_2', 'alas_2_3', 'alas_2_4', 'alas_2_5', 'alas_2_6', 'nope_nope_0', 'nope_nope_1', 'nope_nope_2', 'nope_nope_3', 'nope_nope_4', 'nope_nope_5', 'nope_nope_6',\
         # 'wave3', 'jump1', 'pickupbox', 'victorypose', 'victorypose_copy', 'wait_0', 'wait_1', 'wait_2', 'alas', 'alas_mirror', 'alas2', 'nope', 'waiting']
 ops = ['+', '&', '*']
-extension = ['|'] 	# concurrent/parallel
+extension = ['|', '~'] 	# concurrent/parallel
 ops = ops + extension
 Symbol = str
 Env = dict
@@ -54,6 +54,8 @@ Number = (int, float)
 def union(*args):
     if DEBUG:
         print "[UNION] args:", args
+    # args = [a.strip() if type(a) == str else a for a in args]
+
     action1 = args[0]
     action2 = args[1:]
     p = 0.5
@@ -78,10 +80,12 @@ def union(*args):
     if not all(check_instances):
         raise SyntaxError("Invalid action types!  %s." % check_instances)
 
-    print "[UNION] p: %s" % p
+    if DEBUG: print "[UNION] p: %s" % p
+
     if 0.0 < p < 1.0 and random.random() >= p:
         if DEBUG:
             print "[UNION] action2: %s" % [action2]
+
         if type(action2) == tuple and len(action2) >= 2:
             a2 = list(action2) + [p]
             return union(*a2)
@@ -111,9 +115,9 @@ def concatenate(*args):
                 return " ".join(actions)
             else:
                 concat_args = list(actions[1:]) + [p]
-                return "{0} {1}".format(actions[0], concatenate(*concat_args))
+                return "{0}".format(" ".join([actions[0], concatenate(*concat_args)]))
 
-    return " ".join(str(i) for i in actions)
+    return " ".join([str(i) for i in actions])
 
 
 # BUG: repeat should evaluate input
@@ -136,22 +140,32 @@ def repeat(expression, r=0.5):
     # for i in range(random.randint(0,r)):
     # 	out = '%s%s' % (out, eval(expression))	# evaluate expression each repetition
     if r - 1.0 >= 0.0:
-        out = '%s%s%s' % (out, eval(expression), repeat(expression, r-1.0))
+        # out = '%s%s%s' % (out, eval(expression), repeat(expression, r-1.0))
+        out = '%s' % (" ".join([out, eval(expression), repeat(expression, r - 1.0)]))
         return out
 
     if random.random() <= r:
-        out = '%s%s%s' % (out, eval(expression), repeat(expression, r))
-
+        # out = '%s%s%s' % (out, eval(expression), repeat(expression, r))
+        out = '%s' % (" ".join([out, eval(expression), repeat(expression, r)]))
     return out
 
 
 def concurrent(*args):
     if DEBUG:
-        print "[MERGE] args: %s" % list(args)
+        print "[CONCURRENT] args: %s" % list(args)
     # return action1 + '|' + action2
     if len(args) <= 1:
-        return args[0] + ' ; '
-    return " | ".join([eval(args[0])] + [concurrent(*args[1:])])
+        return args[0] + ';'
+    return " | ".join([c.strip() for c in [eval(args[0])] + [concurrent(*args[1:])]])
+
+
+def merge(*args):
+    if DEBUG:
+        print "[MERGE] args: %s" % list(args)
+    if len(args) <= 1:
+        return args[0] + ';'
+    return "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
+
 
 # Source: norvig.com/lispy.html
 def standard_env():
@@ -162,6 +176,7 @@ def standard_env():
         '&': concatenate,
         '*': repeat,
         '|': concurrent,
+        '~': merge,
         'number?': lambda x: isinstance(x, Number),
         })
     return env

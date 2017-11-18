@@ -2,6 +2,8 @@ import matplotlib.pylab as plt
 import robel_parser as rp
 from makana_jimmy_program import position_library
 
+import redis
+
 vocab = position_library
 vocab['muscle_combo_1'] = '(* (& muscle_flex_1 muscle_flex_2 muscle_flex_3 muscle_flex_4 muscle_flex_5 muscle_flex_6 muscle_flex_7) 0.5)'
 vocab['muscle_combo_2'] = '(* (& muscle_flex_7 muscle_flex_6 muscle_flex_5 muscle_flex_4 muscle_flex_3 muscle_flex_2 muscle_flex_1) 0.5)'
@@ -57,7 +59,7 @@ def test_probabilities(exp, n=1000):
     #     plt.text(a,b, str("%s\n%s" % (a, b)))
     plt.xlabel("String length")
     plt.ylabel("Occurence")
-    plt.title("Union: %s P=0.5 N=1000" % exp)
+    plt.title("Union: %s P=0.3 N=1000" % exp)
     # plt.plot(x, y)
 
     # For bar chart (use on Union)
@@ -69,12 +71,37 @@ def test_probabilities(exp, n=1000):
 
     plt.show()
 
-DEBUG=True
+# DEBUG=True
 
+r = redis.StrictRedis(host="localhost", port=6379, db=0)
+import time
+import re
 if __name__=='__main__':
-    to_parse = '(+ a b c d e 0.5)'
-    to_parse = '(~ muscle_combo_1 oops waiting)'
-    rp.parsex(to_parse)
+    to_parse = '(* (& (+ left right) (+ up down right left) 0.75) 5.7)'
+    wedge_to_parse = '(* (& up left down right) 5.7)'
+    # to_parse = '(_ muscle_combo_1 oops waiting)'
+    word = rp.parsex(to_parse)
+    wedge = rp.parsex(wedge_to_parse)
+    # ref: https://stackoverflow.com/a/26949785
+    box = re.sub("\s+",",",word).split(',')
+    wedge = re.sub("\s+",",",wedge).split(',')
+    # for w in box:
+    #     w = w.strip()
+    #     print("Sending: %s" % w)
+    #     r.publish('test', w)
+    #     time.sleep(2)
+    # r.publish('test', "end")
+    for b, w in zip(box, wedge):
+        b = b.strip()
+        w = w.strip()
+        print('Sending:\n   box: %s, wedge: %s' % (b, w))
+        r.publish('test', b)
+        r.publish('wedge', w)
+        time.sleep(2)
+    r.publish('test', 'end')
+    r.publish('wedge', 'end')
+
+
     # x = test_probabilities(to_parse)
     # print x
     # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)
