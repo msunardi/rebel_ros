@@ -94,6 +94,7 @@ def union(*args):
             return action2[0]
     return action1
 
+
 def union2(*args):
     # if DEBUG:
     print "[UNION] args:", args
@@ -106,8 +107,10 @@ def union2(*args):
         if isinstance(args[-1], List):
             p = args[-1]
             actions = args[:-1]
-            if len(args[-1]) != len(args[:-1]):
-                raise Exception
+            print "Ping!"
+            if len(p) != len(actions):
+                raise Exception('List of probabilities must have the same size as the number of arguments.')
+
         elif isinstance(args[-1], Number):
             px = args[-1]   # The probability is one number; is assigned to the first argument
             actions = args[:-1]

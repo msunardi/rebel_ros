@@ -72,8 +72,8 @@ def test_probabilities(exp, n=1000):
 DEBUG=True
 
 if __name__=='__main__':
-    to_parse = '(+ a b c d e [0.5 0.1 0.0 0.2 0.2])'
-    to_parse = '(+ a b c d e 0.2)'
+    to_parse = '(+ a b c d e [0.5 0.1 0.0 0.2])'
+    # to_parse = '(+ a b c d e 0.2)'
 
     # to_parse = '(~ muscle_combo_1 oops waiting)'
     rp.parsex(to_parse)
