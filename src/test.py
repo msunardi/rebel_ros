@@ -72,11 +72,12 @@ def test_probabilities(exp, n=1000):
 DEBUG=True
 
 if __name__=='__main__':
-    to_parse = '(+ a b c d e [0.5 0.1 0.0 0.2])'
     # to_parse = '(+ a b c d e 0.2)'
-
     # to_parse = '(~ muscle_combo_1 oops waiting)'
-    rp.parsex(to_parse)
-    x = test_probabilities(to_parse)
+    # rp.parsex(to_parse)
+    to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', '(+ a b c d 0.4)', '(+ a b c d)', '(+ (& a b) c d [0.2 0.3 0.5])']
+    for p in to_parse:
+        rp.parsex(p)
+    # x = test_probabilities(to_parse)
     # print x
     # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)

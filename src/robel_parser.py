@@ -96,8 +96,8 @@ def union(*args):
 
 
 def union2(*args):
-    # if DEBUG:
-    print "[UNION] args:", args
+    if DEBUG:
+        print "[UNION] args:", args
     # args = [a.strip() if type(a) == str else a for a in args]
     actions = args
     p = None
@@ -107,7 +107,6 @@ def union2(*args):
         if isinstance(args[-1], List):
             p = args[-1]
             actions = args[:-1]
-            print "Ping!"
             if len(p) != len(actions):
                 raise Exception('List of probabilities must have the same size as the number of arguments.')
 
@@ -127,11 +126,11 @@ def union2(*args):
         actions = [c.replace('\n', '').replace('\r', '') for c in actions]
 
     except ValueError as ve:
-        # else:
-        #   action2 = args[1:]
         pass
-    print "Actions: ", actions
-    print "p: ", p
+
+    if DEBUG:
+        print "Actions: ", actions
+        print "p: ", p
     return npchoice(actions, p=p)
 
 
@@ -231,7 +230,8 @@ def tokenizer(expression):
         print "Tokenizer - expression: %s" % (expression)
     tokens = expression.replace('(', ' ( ').replace(')', ' ) ').replace('+', ' + ').replace('&', ' & ').replace('*', ' * ').\
     replace('[', ' [ ').replace(']',' ] ').split()
-    print "Tokens: ", tokens
+    if DEBUG:
+        print "Tokens: ", tokens
     return tokens
 
 def read_from_tokens(tokens):
@@ -278,7 +278,8 @@ def eval(x, env=global_env):
     if DEBUG:
         print "x: %s" % (x)
     if isinstance(x, Symbol):
-        print "Symbol: %s" % (x)
+        if DEBUG:
+            print "Symbol: %s" % (x)
         if x in chars or x in acts: # if x is a variable, return as-is
             return "%s " % x
         if x not in env:
@@ -286,15 +287,16 @@ def eval(x, env=global_env):
             return x
         return env[x]	# otherwise, x is an operator
     elif isinstance(x, Number):
-        print "Number: %s" % x
+        if DEBUG:
+            print "Number: %s" % x
         return x
     elif isinstance(x, List) and all([isinstance(c, float) for c in x]):
-        print "List: %s" % x
+        if DEBUG:
+            print "List: %s" % x
         return x
     else:
-        print "Else: %s" % x
         if DEBUG:
-            print "x is not a symbol or number: %s" % x
+            print "Else, is not a symbol or number: %s" % x
 
         if not x:
             return 0
@@ -308,7 +310,6 @@ def eval(x, env=global_env):
         proc = eval(x[0], env)
         y = x[1:]
         args = y
-        print "Y: %s" % y
 
         if proc.__name__ == 'repeat':	# If repetition, don't evaluate arguments
             #print "repeat!"
@@ -324,10 +325,12 @@ def eval(x, env=global_env):
 def parsex(exp):
     print "Evaluating: %s" % (exp)
     tokens = parse(exp)
-    print tokens
+    if DEBUG:
+        print tokens
     word = eval(tokens)
-    print word
-    print "Displaying: %s>>" % (word)
+    if DEBUG:
+        print word
+    print "Displaying >> %s" % (word)
     return word
 
 def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
