@@ -73,6 +73,8 @@ DEBUG=True
 
 if __name__=='__main__':
     to_parse = '(+ a b c d e [0.5 0.1 0.0 0.2 0.2])'
+    to_parse = '(+ a b c d e 0.2)'
+
     # to_parse = '(~ muscle_combo_1 oops waiting)'
     rp.parsex(to_parse)
     x = test_probabilities(to_parse)

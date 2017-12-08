@@ -102,12 +102,19 @@ def union2(*args):
     p = None
 
     try:
+        # Probability is given as list
         if isinstance(args[-1], List):
             p = args[-1]
             actions = args[:-1]
+            if len(args[-1]) != len(args[:-1]):
+                raise Exception
         elif isinstance(args[-1], Number):
-            p = args[-1]
+            px = args[-1]   # The probability is one number; is assigned to the first argument
             actions = args[:-1]
+            py = 1.0 - px
+            pz = py / (len(actions) - 1)  # The probability of the remainder of arguments is equally distributed
+            p = [px] + [pz]*(len(actions) - 1)
+
     except TypeError as te:
         if type(args[-1]) == float:
             p = args[-1]
