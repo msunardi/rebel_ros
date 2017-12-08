@@ -76,8 +76,12 @@ if __name__=='__main__':
     # to_parse = '(~ muscle_combo_1 oops waiting)'
     # rp.parsex(to_parse)
     to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', '(+ a b c d 0.4)', '(+ a b c d)', '(+ (& a b) c d [0.2 0.3 0.5])']
-    for p in to_parse:
-        rp.parsex(p)
-    # x = test_probabilities(to_parse)
-    # print x
+    to_parse = ['(+ (& a b x y z 0.4) c d [0.2 0.3 0.5])']
+    out = []
+    # for i in range(100):
+    #     for p in to_parse:
+    #         out.append(rp.parsex(p))
+    # print out
+    x = test_probabilities(to_parse[0])
+
     # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)
