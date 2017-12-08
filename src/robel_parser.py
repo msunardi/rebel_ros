@@ -1,5 +1,5 @@
 import random, math
-
+from numpy.random import choice as npchoice
 DEBUG = False
 
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
@@ -35,6 +35,7 @@ ops = ops + extension
 Symbol = str
 Env = dict
 Number = (int, float)
+List = (list, tuple)
 
 # def union(action1, action2, p=0.5):
 #     if DEBUG:
@@ -92,6 +93,37 @@ def union(*args):
         else:
             return action2[0]
     return action1
+
+def union2(*args):
+    # if DEBUG:
+    print "[UNION] args:", args
+    # args = [a.strip() if type(a) == str else a for a in args]
+    actions = args
+    p = None
+
+    try:
+        if isinstance(args[-1], List):
+            p = args[-1]
+            actions = args[:-1]
+        elif isinstance(args[-1], Number):
+            p = args[-1]
+            actions = args[:-1]
+    except TypeError as te:
+        if type(args[-1]) == float:
+            p = args[-1]
+            actions = args[:-1]
+        else:
+            p = 1.0/len(args)
+        actions = [c.replace('\n', '').replace('\r', '') for c in actions]
+
+    except ValueError as ve:
+        # else:
+        #   action2 = args[1:]
+        pass
+    print "Actions: ", actions
+    print "p: ", p
+    return npchoice(actions, p=p)
+
 
 
 def concatenate(*args):
@@ -172,12 +204,13 @@ def standard_env():
     env = Env()
     env.update(vars(math))
     env.update({
-        '+': union,
+        '+': union2,
         '&': concatenate,
         '*': repeat,
         '|': concurrent,
         '~': merge,
         'number?': lambda x: isinstance(x, Number),
+        'list?': lambda x: isinstance(x, List)
         })
     return env
 
@@ -186,7 +219,10 @@ global_env = standard_env()
 def tokenizer(expression):
     if DEBUG:
         print "Tokenizer - expression: %s" % (expression)
-    return expression.replace('(', ' ( ').replace(')', ' ) ').replace('+', ' + ').replace('&', ' & ').replace('*', ' * ').split()
+    tokens = expression.replace('(', ' ( ').replace(')', ' ) ').replace('+', ' + ').replace('&', ' & ').replace('*', ' * ').\
+    replace('[', ' [ ').replace(']',' ] ').split()
+    print "Tokens: ", tokens
+    return tokens
 
 def read_from_tokens(tokens):
     if len(tokens) == 0:
@@ -201,7 +237,15 @@ def read_from_tokens(tokens):
         tokens.pop(0) # pop ')' right bracket
         return L
     elif ')' == token:
-        return SyntaxError('Unexpected )')
+        return SyntaxError('Unexpected \')\'')
+    elif '[' == token:
+        M = []
+        while tokens[0] != ']':
+            M.append(read_from_tokens(tokens))
+        tokens.pop(0)
+        return M
+    elif ']' == token:
+        return SyntaxError('Unexpected \']\'')
     else:
         return atom(token)
 
@@ -212,7 +256,10 @@ def atom(token):
         try:
             return float(token)
         except ValueError:
-            return Symbol(token)
+            try:
+                return Symbol(token)
+            except ValueError:
+                return list(token)
 
 def parse(expression):
     return read_from_tokens(tokenizer(expression))
@@ -221,23 +268,27 @@ def eval(x, env=global_env):
     if DEBUG:
         print "x: %s" % (x)
     if isinstance(x, Symbol):
+        print "Symbol: %s" % (x)
         if x in chars or x in acts: # if x is a variable, return as-is
             return "%s " % x
         if x not in env:
             print "%s is neither a known symbol or an operator." % x
             return x
-
         return env[x]	# otherwise, x is an operator
     elif isinstance(x, Number):
+        print "Number: %s" % x
         return x
-    # TODO : probabilistic operator format: [p op] or [op p]?
-
+    elif isinstance(x, List) and all([isinstance(c, float) for c in x]):
+        print "List: %s" % x
+        return x
     else:
+        print "Else: %s" % x
         if DEBUG:
             print "x is not a symbol or number: %s" % x
 
         if not x:
             return 0
+
         # infix
         # proc = eval(x[1], env)
         # y = [x[0]]
@@ -247,6 +298,7 @@ def eval(x, env=global_env):
         proc = eval(x[0], env)
         y = x[1:]
         args = y
+        print "Y: %s" % y
 
         if proc.__name__ == 'repeat':	# If repetition, don't evaluate arguments
             #print "repeat!"
@@ -262,6 +314,7 @@ def eval(x, env=global_env):
 def parsex(exp):
     print "Evaluating: %s" % (exp)
     tokens = parse(exp)
+    print tokens
     word = eval(tokens)
     print word
     print "Displaying: %s>>" % (word)
