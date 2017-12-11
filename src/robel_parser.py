@@ -207,6 +207,21 @@ def merge(*args):
         return args[0] + ';'
     return "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
 
+def predicate(*args):
+    # If-then [-else]
+    test = args[0]
+    if len(args) > 3:
+        raise Exception('PREDICATE: too many arguments')
+    elif len(args) == 2:
+        if test():
+            return eval(args[1])
+
+    elif len(args) == 3:
+        if test():
+            return eval(args[1])
+        else:
+            return eval(args[2])
+    return None
 
 # Source: norvig.com/lispy.html
 def standard_env():
@@ -218,6 +233,7 @@ def standard_env():
         '*': repeat,
         '|': concurrent,
         '~': merge,
+        'if': predicate,
         'number?': lambda x: isinstance(x, Number),
         'list?': lambda x: isinstance(x, List)
         })
