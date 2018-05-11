@@ -41,8 +41,8 @@ vocab = mjp.position_library
 # vocab['nope'] = '((nope_nope_0 & (nope_nope_1 & (nope_nope_2 & (nope_nope_3 & (nope_nope_4 & (nope_nope_5 & nope_nope_6)))))) & stand)'
 # vocab['waiting'] = '((yawn + (nope + (wait_0 + wait_1))) * 0.7)'
 
-vocab['muscle_combo_1'] = '(* (& muscle_flex_1 muscle_flex_2 muscle_flex_3 muscle_flex_4 muscle_flex_5 muscle_flex_6 muscle_flex_7) 0.5)'
-vocab['muscle_combo_2'] = '(* (& muscle_flex_7 muscle_flex_6 muscle_flex_5 muscle_flex_4 muscle_flex_3 muscle_flex_2 muscle_flex_1) 0.5)'
+vocab['muscle_combo_1'] = '(* (& stand muscle_flex_1 muscle_flex_2 muscle_flex_3 muscle_flex_4 muscle_flex_5 muscle_flex_6 muscle_flex_7 stand) 1.0)'
+vocab['muscle_combo_2'] = '(* (& muscle_flex_7 muscle_flex_6 muscle_flex_5 muscle_flex_4 muscle_flex_3 muscle_flex_2 muscle_flex_1) 1.5)'
 vocab['combo_1'] = '(+ muscle_combo_1 muscle_combo_2)'
 vocab['wave2'] = '(& wave2_1 wave2_2 wave2_3 wave2_4 wave2_5 wave2_6 wave2_7 stand)'
 vocab['wave1'] = '(& wave_1 wave_2 wave_3 wave_4 wave_5 stand)'
