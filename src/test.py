@@ -1,6 +1,7 @@
 import matplotlib.pylab as plt
 import robel_parser as rp
 from makana_jimmy_program import position_library
+from executor import Executor
 
 vocab = position_library
 vocab['muscle_combo_1'] = '(* (& muscle_flex_1 muscle_flex_2 muscle_flex_3 muscle_flex_4 muscle_flex_5 muscle_flex_6 muscle_flex_7) 0.5)'
@@ -77,11 +78,23 @@ if __name__=='__main__':
     # rp.parsex(to_parse)
     to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', '(+ a b c d 0.4)', '(+ a b c d)', '(+ (& a b) c d [0.2 0.3 0.5])']
     # to_parse = ['(+ (& a b x y z 0.4) c d [0.2 0.3 0.5])']
+    to_parse = ['(* (| (+ a b) (& c d)) 0.7)']      # Test concurrency
+    # to_parse = ['(~ a b c d)']
+
+    e = Executor()
+
     out = []
+    for p in to_parse:
+        out = rp.parsex(p)
+
+    print "Out: {}".format(out)
+
+    for o in out.split(';'):
+        e.execute(o)
     # for i in range(100):
     #     for p in to_parse:
     #         out.append(rp.parsex(p))
     # print out
-    x = test_probabilities(to_parse[2])
+    # x = test_probabilities(to_parse[2])
 
     # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)

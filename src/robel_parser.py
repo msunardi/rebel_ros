@@ -339,6 +339,10 @@ def eval(x, env=global_env):
     return proc(*args)
 
 def parsex(exp):
+    '''
+    :param exp:
+    :return the fully expanded pattern/word from exp:
+    '''
     print "Evaluating: %s" % (exp)
     tokens = parse(exp)
     if DEBUG:
