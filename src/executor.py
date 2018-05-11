@@ -2,6 +2,16 @@ import subprocess
 
 class Executor:
 
+    echo_fu = ["echo", "fu"]
+    echo_bar = ["echo", "bar"]
+    echo_baz = ["echo", "baz"]
+    echo_hello = ["echo", "hello"]
+    echo_world = ["echo", "world"]
+    sh_helloworld = ["sh", "hello_world.sh"]
+    sh_fubar = ["sh", "fubar.sh"]
+    sp_call = subprocess.call       # Each call is blocking
+    sp_popen = subprocess.Popen     # Fire-and-forget; each call does not block
+
     def execute(self, args):
         print "Start executing: {}".format(args)
         csync = [a.strip() for a in args.split('|')]
@@ -16,15 +26,15 @@ class Executor:
             if arg == ' ':
                 continue
             if arg == 'a':
-                subprocess.call(["echo", "fu"])
+                self.sp_popen(self.sh_helloworld)
             elif arg == 'b':
-                subprocess.call(["echo", "bar"])
+                self.sp_popen(self.sh_helloworld)
             elif arg == 'c':
-                subprocess.call(["echo", "hello"])
+                self.sp_popen(self.sh_fubar)
             elif arg == 'd':
-                subprocess.call(["echo", "world"])
+                self.sp_popen(self.sh_fubar)
             else:
-                subprocess.call(["echo", "baz"])
+                self.sp_popen(self.echo_baz)
         print "---"
 
 if __name__ == "__main__":
