@@ -71,7 +71,8 @@ class Task(threading.Thread):
     sh_fubar = ["sh", "fubar.sh"]
 
     def __init__(self, args):
-        super(Task, self).__init__(group=None, target=None, args=args, kwargs=None, verbose=None)
+        args = args.strip()
+        super(Task, self).__init__(group=None, target=None, args=args, name=args, verbose=None)
         self.task_buffer = []
         for arg in args:
             if arg == ' ':
@@ -89,14 +90,13 @@ class Task(threading.Thread):
             self.task_buffer.append((self.sp_call, darg))
 
     def run(self):
+        logging.debug("Executing task: {}".format(self.name))
         for cmd, task in self.task_buffer:
-            # logging.debug('Cmd: {}, task: {}'.format(cmd, task))
-            # cmd(task)
-            # print(cmd)
+
             assert type(task) == list
-            print(type(task), len(task))
+            # Removed ref to cmd - use subprocess call directly
             subprocess.call(task)
-        print("Done with task.")
+        logging.debug("Done with task: {}".format(self.name))
 
 if __name__ == "__main__":
     e = Executor()
