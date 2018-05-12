@@ -90,6 +90,8 @@ if __name__=='__main__':
     print "Out: {}".format(out)
 
     for o in out.split(';'):
+        if o == ' ' or o.strip() == '':
+            continue
         e.execute(o)
     # for i in range(100):
     #     for p in to_parse:
