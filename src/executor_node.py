@@ -34,7 +34,9 @@ class TaskExecutor(threading.Thread):
         elif '~' in task.data:
             return self.process_merge(task.data)
         else:
-            return task.data
+            le_task = [tuple(task.data.split(' '))]
+            print("No concurrency or merge detected - executing: {}".format(le_task))
+            return le_task
 
     def execute_task(self, task):
         zoot = Twist()
@@ -85,10 +87,13 @@ class TaskExecutor(threading.Thread):
             if len(e) < longest_event:
                 e += ' ' * (longest_event - len(e))  # pad the end with blanks
             z_events.append(e)
-        # 3. "Transpose" the events; turn concurrent symbols into one sequence
+
+        # 3. "Transpose" the events; turn concurrent symbols into one 'sequence'
         z_events = list(zip(*z_events))
 
         print("Processing concurrent events: {}".format(z_events))
+
+        # TODO: Execute events
         return z_events
 
     def process_merge(self, events):
