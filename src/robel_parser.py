@@ -233,7 +233,7 @@ def standard_env():
         '*': repeat,
         '|': concurrent,
         '~': merge,
-        'if': predicate,
+        '?': predicate,
         'number?': lambda x: isinstance(x, Number),
         'list?': lambda x: isinstance(x, List)
         })
@@ -357,18 +357,64 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
     word = parsex(sequence)
     expansion += [word]
     print "Word: ", word
+
+    # Check if there is any concurrency operators
+    if '|' in word:
+        return word, concurrent_expansion(word.split(';'), vocab)
+
     for c in word.replace('\n','').replace('\r','').split():
         cmd = vocab[c]
-        print "%s: %s" % (c, cmd)
+        print "expand_sequence(): %s: %s" % (c, cmd)
         if c in vocab.keys() and type(cmd) == str:
             expand_sequence(cmd, vocab, loo)
             continue
-        print cmd
+        print "expand_sequence(): Not compound: {}".format(cmd)
         loo += [cmd]
     else:
-        print "Foobar!"
+        print "expand_sequence(): Foobar!"
         print loo
         return loo, expansion
 #         break
 #     logging.debug('foobarbaz done!')
 #     return "Done"
+
+def expand_word(seq, vocab, loo=[], expansion=[]):
+    word = parsex(seq)
+    expansion += [word]
+    print "expand_word(): Word: ", word
+    for c in word.replace('\n','').replace('\r','').split():
+        cmd = vocab[c]
+        print "expand_word(): %s: %s" % (c, cmd)
+        if c in vocab.keys() and type(cmd) == str:
+            expand_word(cmd, vocab, loo)
+            continue
+        print "expand_word(): Not compound: {}".format(cmd)
+        loo += [cmd]
+    else:
+        print "expand_word(): Foobar!"
+        print loo
+        return loo, expansion
+
+def concurrent_expansion(sequence, vocab):
+    print "CONCURRENT_EXPANSION: {}".format(sequence)
+
+    # 1. Clean-up expression into a sequence (if any)
+    cleanup_sequence = []
+    for seq in sequence:
+        s = seq.strip()
+        if len(s) > 0:
+            cleanup_sequence.append(s)
+    print "CONCURRENT_EXPANSION: cleaned-up: {}".format(cleanup_sequence)
+    # Each element in cleanup_sequence is a frame i.e. progression in time
+
+    # 2. For each element in cleanup_sequence, arrange into concurrent execution plan
+    # e.g. ['yes | wow', 'wow | yes | freeze'] into:
+    # execution plan: [
+    #   concurrent expansion of 'yes | wow': [('yes1', 'wow1'), ('yes2', 'wow2'), ('yes3', 'wow3')],
+    #   expansion of 'wow | yes | freeze': [('wow1', 'yes1', 'freeze1'), ('wow2', 'yes2', 'freeze2'), ...]
+    # ]  ## End of plan
+    # TODO: How to do 'concurrent' on ('yes1', 'wow1') when each of those is a pose with values for ALL joints
+
+
+    # 3. Combine into one structure
+    return None

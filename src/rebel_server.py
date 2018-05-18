@@ -95,6 +95,8 @@ def parse(request):
 
     # THIS IS A HACK! THE SEQUENCE WILL KEEP EXPANDING OTHERWISE
     # Still need to figure out why it is so
+
+    print "parse(): expansion: {}".format(expansion)
     expansion_length = len(expansion[-1].split(" "))
     sequence = sequence[-expansion_length:]
     print "Sequence [PRE]: %s" % sequence

@@ -388,7 +388,7 @@ def ProcessPositions(PositionSequence):
     print "Pos sequence: %s" % PositionSequence
     CurrentPosition = [512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512]
     output_sequence = list()
-    for i in range(len(PositionSequence)):     
+    for i in range(len(PositionSequence)):
         NextPosition = PositionSequence[i]
         print "NextPosition: %s" % NextPosition
         NextPosition = MergePositions(CurrentPosition, NextPosition)
