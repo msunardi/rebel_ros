@@ -14,6 +14,19 @@ import scipy.signal as spsig
 import matplotlib.pyplot as plt
 import scipy
 
+import time
+from datetime import timedelta
+
+def elapsed(func):
+    def wrapper(*args, **kwargs):
+        start = time.time()
+        f = func(*args, **kwargs)  # Call the method
+        end = time.time()
+        elapsed = end-start
+        print('Elapsed: %s' % str(timedelta(seconds=elapsed)))
+        return f  # Return whatever the method returns
+    return wrapper
+
 
 def analyze(data):
     foo_time = pd.DataFrame(data)
@@ -87,8 +100,9 @@ def analyze(data):
         else:
             to_return[col] = [-1] * len(foo[col])
     print(to_return)
-    
-def spectralize(data1, data2=None, joint='R_SHO_PITCH', N=400):
+ 
+@elapsed
+def spectralize(data1, data2=None, joint='R_SHO_PITCH', N=400, p=0.5):
     l = len(data1[joint])
 #    print("l: {}".format(l))
 #    x = np.linspace(0, l-1, l)
@@ -109,7 +123,7 @@ def spectralize(data1, data2=None, joint='R_SHO_PITCH', N=400):
 #    fxcont = np.concatenate((fx(xnew), fx(xnew), fx(xnew)))
     
 #    xnew = np.linspace(0.0, N*T, N)
-    fxxnew = fx(xnew)[:-50]
+    fxxnew = fx(xnew)[:-50]     # For some reason, truncate! The inter/extrapolation screwed up!
     fftx = spfft.fft(fxxnew)
 #    fftx = spfft.fft(fxcont)
     freq1 = np.fft.fftfreq(N//2)
@@ -123,7 +137,6 @@ def spectralize(data1, data2=None, joint='R_SHO_PITCH', N=400):
         
         fftx2 = spfft.fft(fx2xnew)
         
-        p = 0.3
         fftx3 = p*fftx + (1-p)*fftx2
         ifftx3 = spfft.ifft(fftx3)
         x3corr = spsig.correlate(fxxnew, fx2xnew, method='auto')/(fx2xnew.shape[0]*N)
