@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 #!/usr/bin/env python
-'''motion_analyzer.py
+'''dynamic_time_warping.py
 
 Author: msunardi
-Created: 5/16/18
+Created: 5/20/18
 
 Given two input signals, find the distance matrix
 '''
 import numpy as np
+import matplotlib.pyplot as plt
 
 sig_a = np.array([[1,3,4,9,8,2,1,5,7,3]])
 sig_b = np.array([[1,6,2,3,0,9,4,3,6,3]])
@@ -56,6 +57,7 @@ for i in range(dim_a):
 # Always start with/include the corner value (N,N)
 matching = [(dim_a-1,dim_b-1)]
 matches = [D[dim_a-1,dim_b-1]]
+sig_warped = []
 k = dim_a-1
 l = dim_b-1
 while k >= 0 or l >= 0:
@@ -102,3 +104,56 @@ for f, g in matching:
     nyoh[f,g] = 1.0
     
 print("Nyoh: \n{}".format(nyoh))
+nyohd = np.multiply(nyoh, D)
+print("Nyoh X D: \n{}".format(np.flip(nyohd,0)))
+
+#f, (ax1, ax2) = plt.subplots(2)
+#ax1.plot(sig_a[0])
+#ax2.plot(sig_b[0])
+
+def construct_warped(distance_matrix, sig1, sig2, matching):
+    prev = None
+    warped = []
+    insertion = []
+    deletion = []
+    for m in matching:
+        print(m)
+        if not prev:
+            warped.append(sig2[0,m[1]])
+            
+        else:
+            print("Prev: {}".format(prev))
+            if m[0]==prev[0]-1 and m[1]==prev[1]-1:
+                if insertion:
+                    print("Insertion: {}".format(insertion))
+                    warped.append(np.mean(insertion))
+                    insertion = []
+                if deletion:
+                    print("Deletion: {}".format(deletion))
+                    warped.append(np.mean(deletion))
+                    deletion = []
+                warped.append(sig2[0,m[1]])
+                print("Warped: {}".format(warped))
+                
+                
+            elif m[0]==prev[0] and m[1]==prev[1]-1:
+                print("Insertion!")
+                insertion.append(sig2[0,m[1]])
+                
+            elif m[0]==prev[0]-1 and m[1]==prev[1]:
+                print("Deletion!")
+                deletion.append(sig2[0,m[1]])
+        prev = m
+    if insertion:
+        warped.append(np.mean(insertion))
+    if deletion:
+        warped.append(np.mean(deletion))
+    warped = list(reversed(warped))
+    plt.subplot(3,1,1)
+    plt.plot(np.arange(sig_a.shape[1]),sig_a[0])
+    plt.subplot(3,1,2)
+    plt.plot(np.arange(sig_b.shape[1]),sig_b[0])
+    plt.subplot(3,1,3)
+    plt.plot(np.arange(len(warped)), warped)
+    plt.show()
+    return warped
