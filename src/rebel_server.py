@@ -96,10 +96,11 @@ def parse(request):
     # THIS IS A HACK! THE SEQUENCE WILL KEEP EXPANDING OTHERWISE
     # Still need to figure out why it is so
 
-    print "parse(): expansion: {}".format(expansion)
+    # TODO: FIX THIS BUG!!!
+    print("parse(): expansion: {}".format(expansion))
     expansion_length = len(expansion[-1].split(" "))
     sequence = sequence[-expansion_length:]
-    print "Sequence [PRE]: %s" % sequence
+    print("Sequence [PRE]: %s" % sequence)
 
     # Return expanded string or sequence?
 
@@ -107,14 +108,14 @@ def parse(request):
     sequence = mjp.JimmyDo(sequence)
 
 
-    print "Evaluating expression: \"%s\" to: \"%s\"" % (expression, expansion)
-    print "Sequence: %s" % sequence
+    print("Evaluating expression: \"%s\" to: \"%s\"" % (expression, expansion))
+    print("Sequence: %s" % sequence)
 
     # expansion = None
     # print expansion
     if len(expansion) > 0:
         response = str(expansion[-1])
-        print "Response: %s" % response
+        print("Response: %s" % response)
     # for s, v in sequence:
     # 	print "%s: %s" % (s, v)
     return RebelResponse(response, str(sequence))
@@ -123,7 +124,7 @@ def parse(request):
 def rebel_server():
     rospy.init_node('rebel_parser_server')
     s = rospy.Service('rebel_parser_server', Rebel, parse)
-    print "Ready to parse"
+    print("Ready to parse")
     rospy.spin()
 
 if __name__ == "__main__":

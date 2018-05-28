@@ -87,7 +87,7 @@ if __name__=='__main__':
     for p in to_parse:
         out = rp.parsex(p)
 
-    print "Out: {}".format(out)
+    print("Out: {}".format(out))
 
     for o in out.split(';'):
         if o == ' ' or o.strip() == '':

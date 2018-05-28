@@ -49,13 +49,18 @@ class TaskExecutor(threading.Thread):
         # Concurrency should be the last step - merge must be done before concurrency
         # Maybe create an intermediary symbol for merged events
 
-        if '|' in task.data:    # Concurrent
+        if '|' in task:    # Concurrent
             execution_plan = self.process_concurrency(task.data)
-        elif '~' in task.data:  # Merge
+        elif '~' in task:  # Merge
             execution_plan = self.process_merge(task.data)
         else:
+            le_task = []
+            for f in task.strip().split(' '):
+                if f != '':
+                    le_task.append(f)
+            print("Le_task: {}".format(le_task))
             # TODO: Check all the other (non-concurrent/merge) possible cases
-            le_task = [tuple(task.data.split(' '))]
+            #le_task = [tuple(ftuple)]
             print("No concurrency or merge detected - executing: {}".format(le_task))
             execution_plan = le_task
 

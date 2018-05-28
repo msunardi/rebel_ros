@@ -148,7 +148,7 @@ def spectralize(data1, data2=None, joint='R_SHO_PITCH', N=400, p=0.5):
         iconv = np.linspace(0, x3conv.shape[0]-1, x3conv.shape[0])
         
 #        iz = np.linspace(0.0, 1.0/(2*))
-        f, ax = plt.subplots(3, 2)
+        f, ax = plt.subplots(3, 2, figsize=(10,8))
         ax[0,0].plot(xnew[:-50], fxxnew)
         ax[1,0].plot(xnew[:-50], fx2xnew)
         ax[2,0].plot(ix, ifftx3)
