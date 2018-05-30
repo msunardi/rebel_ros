@@ -74,10 +74,10 @@ DEBUG=True
 
 if __name__=='__main__':
     # to_parse = '(+ a b c d e 0.2)'
-    # to_parse = '(~ muscle_combo_1 oops waiting)'
+    # to_parse = '(~ muscle_combo_1 oops waitilng)'
     # rp.parsex(to_parse)
     to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', '(+ a b c d 0.4)', '(+ a b c d)', '(+ (& a b) c d [0.2 0.3 0.5])']
-    # to_parse = ['(+ (& a b x y z 0.4) c d [0.2 0.3 0.5])']
+    to_parse = ['(+ (& a b x y z 0.4) c d [0.2 0.3 0.5])']
     to_parse = ['(| (+ a b) (& c d))']      # Test concurrency
     # to_parse = ['(~ a b c d)']
 
@@ -89,14 +89,18 @@ if __name__=='__main__':
 
     print("Out: {}".format(out))
 
-    for o in out.split(';'):
-        if o == ' ' or o.strip() == '':
-            continue
-        e.execute(o)
-    # for i in range(100):
-    #     for p in to_parse:
-    #         out.append(rp.parsex(p))
-    # print out
-    # x = test_probabilities(to_parse[2])
+    # IF there's ';' means it's a concurrency event
+    if ';' in out:
+        for o in out.split(';'):
+            if o == ' ' or o.strip() == '':
+                continue
+            e.execute(o)
+    else:  # Otherwise it's a normal event
+        out = []
+        for i in range(1):
+            for p in to_parse:
+                out.append(rp.parsex(p))
+        print(out)
+        x = test_probabilities(to_parse[0])
 
     # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)

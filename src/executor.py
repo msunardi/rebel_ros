@@ -21,7 +21,7 @@ class Executor:
     sp_popen = subprocess.Popen     # Fire-and-forget; each call does not block
 
     def execute(self, args):
-        print "Start executing: {}".format(args)
+        print("Start executing: {}".format(args))
         ctasks = [a.strip() for a in args.split('|')]
 
         # METHOD 1
@@ -42,7 +42,7 @@ class Executor:
             task.join()
 
     def excall(self, args):
-        print "---"
+        print("---")
         for arg in args:
             if arg == ' ':
                 continue
@@ -56,7 +56,7 @@ class Executor:
                 self.sp_call(self.sh_fubar)
             else:
                 self.sp_popen(self.echo_baz)
-        print "---"
+        print("---")
 
 
 class Task(threading.Thread):
