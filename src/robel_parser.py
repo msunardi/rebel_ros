@@ -1,5 +1,8 @@
 import random, math
 from numpy.random import choice as npchoice
+
+from utils import *
+
 DEBUG = False
 
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
@@ -54,7 +57,7 @@ List = (list, tuple)
 
 def union(*args):
     if DEBUG:
-        print "[UNION] args:", args
+        rprint("[UNION] args: {}", args)
     # args = [a.strip() if type(a) == str else a for a in args]
 
     action1 = args[0]
@@ -81,11 +84,11 @@ def union(*args):
     if not all(check_instances):
         raise SyntaxError("Invalid action types!  %s." % check_instances)
 
-    if DEBUG: print "[UNION] p: %s" % p
+    if DEBUG: rprint("[UNION] p: {}", p)
 
     if 0.0 < p < 1.0 and random.random() >= p:
         if DEBUG:
-            print "[UNION] action2: %s" % [action2]
+            rprint("[UNION] action2: {}", [action2])
 
         if type(action2) == tuple and len(action2) >= 2:
             a2 = list(action2) + [p]
@@ -97,7 +100,7 @@ def union(*args):
 
 def union2(*args):
     if DEBUG:
-        print "[UNION] args:", args
+        rprint("[UNION] args: {}", args)
     # args = [a.strip() if type(a) == str else a for a in args]
     actions = args
     p = None
@@ -129,15 +132,14 @@ def union2(*args):
         pass
 
     if DEBUG:
-        print "Actions: ", actions
-        print "p: ", p
+        rprint("Actions: {}", actions)
+        rprint("p: {}", p)
     return npchoice(actions, p=p)
-
 
 
 def concatenate(*args):
     if DEBUG:
-        print "[CONCATENATE] args: %s" % list(args)
+        rprint("[CONCATENATE] args: {}" , list(args))
     p = 1.0
     actions = args
 
@@ -169,7 +171,7 @@ def concatenate(*args):
 # Update 5/3/15: argument is now float (probability)
 def repeat(expression, r=0.5):
     if DEBUG:
-        print "%s, %s" % (expression, r)
+        rprint("[REPEAT] expression: {}, prob: {}", expression, r)
     # if not isinstance(r, int) or r < 0:
     # 	raise SyntaxError("What the hell, man? What. The. Hell.")
     # if r > 4 and r <= 10:
@@ -193,7 +195,7 @@ def repeat(expression, r=0.5):
 
 def concurrent(*args):
     if DEBUG:
-        print "[CONCURRENT] args: %s" % list(args)
+        rprint("[CONCURRENT] args: {}" , list(args))
     # return action1 + '|' + action2
     if len(args) <= 1:
         return args[0] + ';'
@@ -202,7 +204,7 @@ def concurrent(*args):
 
 def merge(*args):
     if DEBUG:
-        print "[MERGE] args: %s" % list(args)
+        rprint("[MERGE] args: {}", list(args))
     if len(args) <= 1:
         return args[0] + ';'
     return "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
@@ -299,7 +301,8 @@ def eval(x, env=global_env):
         if x in chars or x in acts: # if x is a variable, return as-is
             return "%s " % x
         if x not in env:
-            print "%s is neither a known symbol or an operator." % x
+            if DEBUG:
+                print "%s is neither a known symbol or an operator." % x
             return x
         return env[x]	# otherwise, x is an operator
     elif isinstance(x, Number):
@@ -343,37 +346,40 @@ def parsex(exp):
     :param exp:
     :return the fully expanded pattern/word from exp:
     '''
-    print "Evaluating: %s" % (exp)
+#    print "Evaluating: %s" % (exp)
     tokens = parse(exp)
     if DEBUG:
-        print tokens
+        print "Evaluating: %s" % (exp)
+        print("PARSEX(): Tokens: {}".format(tokens))
     word = eval(tokens)
     if DEBUG:
-        print word
-    print "Displaying >> %s" % (word)
+        print("PARSEX(): Word: {}".format(word))
+        print("Displaying >> %s" % (word))
+    word = ' '.join(word.split())   # Get rid of in-between whitespaces
     return word
 
 def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
     word = parsex(sequence)
     expansion += [word]
-    print "expand_sequence(): Word: ", word
+    print("expand_sequence(): Word: {}".format(word))
 
     # Check if there is any concurrency operators
     if '|' in word or ';' in word:
+        print("Processing concurrency ... ")
         return concurrent_expansion(word.split(';'), vocab)
 
     for c in word.replace('\n','').replace('\r','').split():
         cmd = vocab[c]
-        print "expand_sequence(): %s: %s" % (c, cmd)
+        print("expand_sequence(): %s: %s" % (c, cmd))
         if c in vocab.keys() and type(cmd) == str:
             expand_sequence(cmd, vocab, loo)
             continue
-        print "expand_sequence(): Not compound: {}".format(cmd)
+        print("expand_sequence(): Not compound: {}".format(cmd))
         loo += [cmd]
 
     else:
-        print "expand_sequence(): Foobar!"
-        print loo
+        print("expand_sequence(): Foobar!")
+        print("{}".format(loo))
     return loo, expansion
 #         break
 #     logging.debug('foobarbaz done!')
@@ -411,7 +417,7 @@ def concurrent_expansion(sequence, vocab):
             cleanup_sequence.append(s)
     print("CONCURRENT_EXPANSION: cleaned-up: {}".format(cleanup_sequence))
 
-    collect_sequence = []
+    collect_sequence = {}
     for concurrent in cleanup_sequence:
         print("CONCURRENT_EXPANSION: concurrent events: {} size: {}".format(concurrent, concurrent.split('|')))
         for word in concurrent.split('|'):
@@ -421,7 +427,7 @@ def concurrent_expansion(sequence, vocab):
             word = word.strip()
             print("CONCURRENT_EXPANSION: Expanding: {}".format(word))
             loo, tmp = expand_word(word, vocab, loo, tmp)
-            collect_sequence.append(loo)
+            collect_sequence[word] = loo
             print("CONCURRENT_EXPANSION: Word: {} => {}".format(word, tmp))
             print("CONCURRENT_EXPANSION: loo: {}".format(loo))
     print("CONCURRENT_EXPANSION: collect_sequence: {}".format(collect_sequence))
