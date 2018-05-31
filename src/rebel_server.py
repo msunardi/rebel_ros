@@ -98,8 +98,9 @@ def parse(request):
 
     # TODO: FIX THIS BUG!!!
     print("parse(): expansion: {}".format(expansion))
-    expansion_length = len(expansion[-1].split(" "))
-    sequence = sequence[-expansion_length:]
+    print("parse(): sequence RAW: {}".format(sequence))
+#    expansion_length = len(expansion[-1].split(" "))
+#    sequence = sequence[-expansion_length:]
     print("Sequence [PRE]: %s" % sequence)
 
     # Return expanded string or sequence?
@@ -113,9 +114,11 @@ def parse(request):
 
     # expansion = None
     # print expansion
+    response = ''
     if len(expansion) > 0:
-        response = str(expansion[-1])
-        print("Response: %s" % response)
+        for exp in expansion[1:]:
+            response += str(exp)
+            print("Response: %s" % response)
     # for s, v in sequence:
     # 	print "%s: %s" % (s, v)
     return RebelResponse(response, str(sequence))

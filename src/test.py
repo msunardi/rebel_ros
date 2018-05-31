@@ -79,7 +79,7 @@ if __name__=='__main__':
     to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', '(+ a b c d 0.4)', '(+ a b c d)', '(+ (& a b) c d [0.2 0.3 0.5])']
     to_parse = ['(+ (& a b x y z 0.4) c d [0.2 0.3 0.5])']
     to_parse = ['(| (+ a b) (& c d))']      # Test concurrency
-    # to_parse = ['(~ a b c d)']
+    to_parse = ['(~ a b c d)']
 
     e = Executor()
 

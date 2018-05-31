@@ -356,11 +356,11 @@ def parsex(exp):
 def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
     word = parsex(sequence)
     expansion += [word]
-    print "Word: ", word
+    print "expand_sequence(): Word: ", word
 
     # Check if there is any concurrency operators
-    if '|' in word:
-        return word, concurrent_expansion(word.split(';'), vocab)
+    if '|' in word or ';' in word:
+        return concurrent_expansion(word.split(';'), vocab)
 
     for c in word.replace('\n','').replace('\r','').split():
         cmd = vocab[c]
@@ -370,10 +370,11 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
             continue
         print "expand_sequence(): Not compound: {}".format(cmd)
         loo += [cmd]
+
     else:
         print "expand_sequence(): Foobar!"
         print loo
-        return loo, expansion
+    return loo, expansion
 #         break
 #     logging.debug('foobarbaz done!')
 #     return "Done"
@@ -381,22 +382,26 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
 def expand_word(seq, vocab, loo=[], expansion=[]):
     word = parsex(seq)
     expansion += [word]
-    print "expand_word(): Word: ", word
+    print("expand_word(): Word: {}".format(word))
     for c in word.replace('\n','').replace('\r','').split():
         cmd = vocab[c]
-        print "expand_word(): %s: %s" % (c, cmd)
+        print("expand_word(): %s: %s" % (c, cmd))
         if c in vocab.keys() and type(cmd) == str:
             expand_word(cmd, vocab, loo)
             continue
-        print "expand_word(): Not compound: {}".format(cmd)
+        print("expand_word(): Not compound: {}".format(cmd))
         loo += [cmd]
+#    else:
+    print("expand_word(): Done - Foobar!")
+    print("expand_word(): loo: {}".format(loo))
+    if type(expansion) == list:
+        expansion = [ex.strip() for ex in expansion]
     else:
-        print "expand_word(): Foobar!"
-        print loo
-        return loo, expansion
+        expansion = expansion.strip()
+    return loo, expansion
 
 def concurrent_expansion(sequence, vocab):
-    print "CONCURRENT_EXPANSION: {}".format(sequence)
+    print("CONCURRENT_EXPANSION: {}".format(sequence))
 
     # 1. Clean-up expression into a sequence (if any)
     cleanup_sequence = []
@@ -404,7 +409,22 @@ def concurrent_expansion(sequence, vocab):
         s = seq.strip()
         if len(s) > 0:
             cleanup_sequence.append(s)
-    print "CONCURRENT_EXPANSION: cleaned-up: {}".format(cleanup_sequence)
+    print("CONCURRENT_EXPANSION: cleaned-up: {}".format(cleanup_sequence))
+
+    collect_sequence = []
+    for concurrent in cleanup_sequence:
+        print("CONCURRENT_EXPANSION: concurrent events: {} size: {}".format(concurrent, concurrent.split('|')))
+        for word in concurrent.split('|'):
+            # Important to avoid concatenation - reset tmp and loo for every concurrent event
+            tmp = []
+            loo = []
+            word = word.strip()
+            print("CONCURRENT_EXPANSION: Expanding: {}".format(word))
+            loo, tmp = expand_word(word, vocab, loo, tmp)
+            collect_sequence.append(loo)
+            print("CONCURRENT_EXPANSION: Word: {} => {}".format(word, tmp))
+            print("CONCURRENT_EXPANSION: loo: {}".format(loo))
+    print("CONCURRENT_EXPANSION: collect_sequence: {}".format(collect_sequence))
     # Each element in cleanup_sequence is a frame i.e. progression in time
 
     # 2. For each element in cleanup_sequence, arrange into concurrent execution plan
@@ -417,4 +437,4 @@ def concurrent_expansion(sequence, vocab):
 
 
     # 3. Combine into one structure
-    return None
+    return loo, collect_sequence
