@@ -198,15 +198,15 @@ def concurrent(*args):
         rprint("[CONCURRENT] args: {}" , list(args))
     # return action1 + '|' + action2
     if len(args) <= 1:
-        return args[0] + ';'
-    return " | ".join([c.strip() for c in [eval(args[0])] + [concurrent(*args[1:])]])
+        return args[0].strip() + ';'
+    return "|".join([c.strip() for c in [eval(args[0])] + [concurrent(*args[1:])]])
 
 
 def merge(*args):
     if DEBUG:
         rprint("[MERGE] args: {}", list(args))
     if len(args) <= 1:
-        return args[0] + ';'
+        return args[0].strip() + ';'
     return "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
 
 def predicate(*args):

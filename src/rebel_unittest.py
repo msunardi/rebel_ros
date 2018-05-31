@@ -26,7 +26,10 @@ class TestParser(unittest.TestCase):
             self.assertTrue(len(rep.split()) >= 2)
         
     def test_parsex_concurrent(self):
-        self.assertEquals(rp.parsex('(| a b c)'), 'a | b | c ;')
+        self.assertEquals(rp.parsex('(| a b c)'), 'a|b|c;')
+
+    def test_parsex_merge(self):
+        self.assertEquals(rp.parsex('(~ a b c)'), 'a~b~c;')
         
 if __name__ == "__main__":
 #    rp.DEBUG = True
