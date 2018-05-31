@@ -364,9 +364,16 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
     print("expand_sequence(): Word: {}".format(word))
 
     # Check if there is any concurrency operators
-    if '|' in word or ';' in word:
+    if '|' in word:
+        word = [w for w in word.split(';') if len(w) > 0]
+
         print("Processing concurrency ... ")
-        return concurrent_expansion(word.split(';'), vocab)
+        return concurrent_expansion(word, vocab)
+
+    if '~' in word:
+        word = [w for w in word.split(';') if len(w) > 0]
+        print("Processing merge ...")
+        return merge_processing(word, vocab)
 
     for c in word.replace('\n','').replace('\r','').split():
         cmd = vocab[c]
@@ -444,3 +451,13 @@ def concurrent_expansion(sequence, vocab):
 
     # 3. Combine into one structure
     return loo, collect_sequence
+
+def merge_processing(sequence, vocab):
+    '''
+    sequence: e.g.
+       - single: a~b~c;
+       - multiple: a~b; c~d;
+    '''
+    rprint("[MERGE_PROCESSING]: sequence: {}", sequence)
+
+    return None
