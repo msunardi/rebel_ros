@@ -268,7 +268,7 @@ def merge2(*data, joint='R_SHO_PITCH', N=400, p=[1.0]):
        Merges using FFT
        Returns: inverse FFT of merged signals
     '''
-    assert len(p) == len(data), "[MERGE2]: Not enough values in p to perform weighted sum! p size={}, data size={}".format(len(p), len(data))
+    assert len(p) == len(data), "[MERGE2]: Mismatch number of values in p to perform weighted sum! p size={}, data size={}".format(len(p), len(data))
     assert sum(p) == 1.0, "[MERGE2]: P value does not sum to 1: {}".format(p)
     
     LL = len(data)
@@ -305,12 +305,11 @@ def merge2(*data, joint='R_SHO_PITCH', N=400, p=[1.0]):
     # Combined data
     le_p = np.array(p)
     fftx_all_array = np.array(fftx_all)[:,1]
-    print("[MERGE2]: le_p shape: {}, fftx_shape: {}".format(le_p.shape, fftx_all_array.shape))
+    assert le_p.shape == fftx_all_array.shape, "[MERGE2]: le_p shape: {}, fftx_shape: {}".format(le_p.shape, fftx_all_array.shape)
+        
     fft_combined = np.dot(le_p, fftx_all_array)
     print("[MERGE2]: fft_combined.shape: {}".format(fft_combined.shape))
-#    fft_combined = np.dot(np.array([p]), np.array(fftx_all))
-#    print(fft_combined[0,:])
-#    return fft_combined
+
     ifft_combined = spfft.ifft(fft_combined)
     fftx_all.append((xf, fft_combined))
     ix = np.linspace(0, max_data_lengths, ifft_combined.shape[0])
@@ -338,7 +337,7 @@ def merge2(*data, joint='R_SHO_PITCH', N=400, p=[1.0]):
         
     
     plt.show()
-    return None
+    return ifft_combined
 
     # =======================
 #    l = len(data1[joint])

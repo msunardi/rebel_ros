@@ -9,6 +9,12 @@ Created on Thu May 31 09:57:56 2018
 import unittest
 import robel_parser as rp
 
+import makana_jimmy_program as mjp
+
+vocab = mjp.position_library
+vocab['yes'] = '(& yes_1 yes_2 yes_3 stand)'
+vocab['wow'] = '(& wow_1 wow_2 wow_3 wow_4 stand)'
+
 class TestParser(unittest.TestCase):
     
     def test_parsex(self):
@@ -36,7 +42,13 @@ class TestParser(unittest.TestCase):
         
     def test_merge_processing(self):
         merge = rp.parsex('(& (~ a b) (~ c d))')
+        print(merge)
         self.assertEquals(rp.merge_processing(merge, None), ['a~b', 'c~d'])
+        
+    def test_merge_processing_motion(self):
+        merge = rp.parsex('(~ yes wow)')
+        print(merge)
+        self.assertEquals(rp.merge_processing(merge, vocab), ['yes~wow'])
 
 if __name__ == "__main__":
 #    rp.DEBUG = True

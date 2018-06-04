@@ -1,8 +1,9 @@
 import random, math
 from numpy.random import choice as npchoice
+import pandas as pd
 
 from utils import *
-import motion_analyzer as ma
+import action_processors as ap
 
 DEBUG = False
 
@@ -464,6 +465,9 @@ def merge_processing(sequence, vocab):
     split_merge = [seq.strip() for seq in sequence.split(';') if seq != '']
     rprint("[MERGE_PROCESSING]: split_merge: {}", split_merge)
     
+    # Joints, in order
+    joints = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
+    
     for m in split_merge:
         # What if vocab is not provided
         if not vocab:
@@ -477,22 +481,26 @@ def merge_processing(sequence, vocab):
         # What if a subset of the events are not part of the vocab?
         m_collect_events = []
         for m_event in m_split_events:
-            if m_event not in vocab:   
+            if m_event not in vocab: 
                 m_collect_events = None  # Clear memory
                 rprint("[MERGE PROCESSING]: event {} is not in vocab", m_event)
                 return split_merge
             
             # Otherwise, expand the event
-            loo, _ = expand_word(m_event, vocab)
-            m_collect_events.append(loo)
-            
+            loo, _ = expand_word(m_event, vocab, loo=[], expansion=[])
+            m_collect_events.append(pd.DataFrame(loo, columns=joints))
+                    
+    # What if there's only one event?        
+    # What if there are only two events?
+    # What if there are more than two events?
+#    rprint("[MERGE PROCESSING]: m_collect_events: \n{}\n{}", *m_collect_events)
+    merged = {}
+    for j in joints:
+#        rprint("[MERGE PROCESSING]: j: {}", j)
+        merged[j] = merge_proc_data(*m_collect_events, joint=j)
         
-        
-        # What if there's only one event?        
-        # What if there are only two events?
-        # What if there are more than two events?
-        
-    return split_merge
+    return merged
 
-def merge_proc_data(all_data):
+def merge_proc_data(*all_data, **kwargs):
     # For each item in the data, perform fft, combine (sum) and return the combined inverse fft
+    return ap.merges(*all_data, joint=kwargs['joint'])
