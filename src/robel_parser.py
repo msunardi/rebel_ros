@@ -2,6 +2,7 @@ import random, math
 from numpy.random import choice as npchoice
 
 from utils import *
+import motion_analyzer as ma
 
 DEBUG = False
 
@@ -459,5 +460,39 @@ def merge_processing(sequence, vocab):
        - multiple: a~b; c~d;
     '''
     rprint("[MERGE_PROCESSING]: sequence: {}", sequence)
+    
+    split_merge = [seq.strip() for seq in sequence.split(';') if seq != '']
+    rprint("[MERGE_PROCESSING]: split_merge: {}", split_merge)
+    
+    for m in split_merge:
+        # What if vocab is not provided
+        if not vocab:
+            # Return the split_merge
+            return split_merge
+        
+        # Split m into individual events
+        m_split_events = m.split('~')
+        
+        # What if any of the events are not part of the vocab?
+        # What if a subset of the events are not part of the vocab?
+        m_collect_events = []
+        for m_event in m_split_events:
+            if m_event not in vocab:   
+                m_collect_events = None  # Clear memory
+                rprint("[MERGE PROCESSING]: event {} is not in vocab", m_event)
+                return split_merge
+            
+            # Otherwise, expand the event
+            loo, _ = expand_word(m_event, vocab)
+            m_collect_events.append(loo)
+            
+        
+        
+        # What if there's only one event?        
+        # What if there are only two events?
+        # What if there are more than two events?
+        
+    return split_merge
 
-    return None
+def merge_proc_data(all_data):
+    # For each item in the data, perform fft, combine (sum) and return the combined inverse fft

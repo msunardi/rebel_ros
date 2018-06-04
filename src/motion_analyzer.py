@@ -14,6 +14,7 @@ import scipy.signal as spsig
 import matplotlib.pyplot as plt
 import scipy
 
+import copy
 import time
 from datetime import timedelta
 
@@ -206,6 +207,190 @@ def test_wavelet(data=None):
     plt.imshow(cwtmatr, extent=[-5, 5, 31, 1], cmap='PRGn', aspect='auto',
                vmax=abs(cwtmatr).max(), vmin=-abs(cwtmatr).max())
     plt.show()
+    
+    
+@elapsed
+def merge(data1, data2, joint='R_SHO_PITCH', N=400, p=0.5):
+    l = len(data1[joint])
+#    print("l: {}".format(l))
+
+    x = np.arange(0, l)
+#    print("x: {} (shape: {})".format(x, x.shape))
+#    print("data[{}]: {}".format(joint, data[joint]))
+    fx = interp1d(x, data1[joint], kind='cubic', fill_value='extrapolate')
+    
+    T = 1.0/800.0
+
+    xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+#    print("xf: {} (shape: {})".format(xf, xf.shape))
+
+#    plt.plot(x, data[joint], xf, fx(xf))
+
+    xnew = np.linspace(0, l, N*2, endpoint=True)
+#    print(fx(xf))
+
+    fxxnew = fx(xnew)[:-50]     # For some reason, truncate! The inter/extrapolation screwed up!
+    fftx = spfft.fft(fxxnew)
+#    freq1 = np.fft.fftfreq(N//2)
+    freq1 = np.linspace(0.0, N*T*10, N)
+    
+    l2 = len(data2[joint])
+    x2 = np.linspace(0, l2-1, l2)
+    fx2 = interp1d(x2, data2[joint], kind='cubic', fill_value='extrapolate')
+    fx2xnew = fx2(xnew)[:-50]
+    
+    fftx2 = spfft.fft(fx2xnew)
+    
+    fftx3 = p*fftx + (1-p)*fftx2
+    ifftx3 = spfft.ifft(fftx3)
+    x3corr = spsig.correlate(fxxnew, fx2xnew, method='auto')/(fx2xnew.shape[0]*N)
+    x3conv = spsig.fftconvolve(fx2xnew, fxxnew)
+    superimpose = (fxxnew + fx2xnew) / 2.0
+    
+    ix = np.linspace(0, l, ifftx3.shape[0])
+    icorr = np.linspace(0, x3corr.shape[0]-1, x3corr.shape[0])
+    iconv = np.linspace(0, x3conv.shape[0]-1, x3conv.shape[0])
+
+    f, ax = plt.subplots(3, 2, figsize=(10,8))
+    ax[0,0].plot(xnew[:-50], fxxnew)
+    ax[1,0].plot(xnew[:-50], fx2xnew)
+    ax[2,0].plot(ix, ifftx3)
+    ax[0,1].plot(xf, 2.0/N*abs(fftx.imag[:N//2]))
+    ax[1,1].plot(xf, 2.0/N*abs(fftx2.imag[:N//2]))
+    ax[2,1].plot(xf, 2.0/N*abs(fftx3.imag[:N//2]))
+    
+    plt.show()
+    return ifftx3
+
+@elapsed
+def merge2(*data, joint='R_SHO_PITCH', N=400, p=[1.0]):
+    '''Accepts arbitrary number of data points to merge
+       Merges using FFT
+       Returns: inverse FFT of merged signals
+    '''
+    assert len(p) == len(data), "[MERGE2]: Not enough values in p to perform weighted sum! p size={}, data size={}".format(len(p), len(data))
+    assert sum(p) == 1.0, "[MERGE2]: P value does not sum to 1: {}".format(p)
+    
+    LL = len(data)
+    if LL == 1:
+        print("[MERGE2]: There's only one data. Returning as-is.")
+        return data
+    
+    # Find 
+    just_joint_data = [d[joint] for d in data]
+    data_lengths = [len(dx) for dx in just_joint_data]
+    max_data_lengths = max(data_lengths)
+    
+    # Container for all Fourier'd signals
+    fftx_all = []
+    all_data = []
+    
+    T = 1.0/800.0
+    xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+    for dd in just_joint_data:
+        l = len(dd)
+        
+        x = np.arange(0, l)
+        
+        fx = interp1d(x, dd, kind='cubic', fill_value='extrapolate')
+        
+        xnew = np.linspace(0, l, N*2, endpoint=True)        
+        
+        fxxnew = fx(xnew)[:-50]
+        fftx = spfft.fft(fxxnew)
+        fftx_all.append((xf, fftx))
+#        print(len(xnew), len(dd))
+        all_data.append((xnew, fxxnew))
+        
+    # Combined data
+    le_p = np.array(p)
+    fftx_all_array = np.array(fftx_all)[:,1]
+    print("[MERGE2]: le_p shape: {}, fftx_shape: {}".format(le_p.shape, fftx_all_array.shape))
+    fft_combined = np.dot(le_p, fftx_all_array)
+    print("[MERGE2]: fft_combined.shape: {}".format(fft_combined.shape))
+#    fft_combined = np.dot(np.array([p]), np.array(fftx_all))
+#    print(fft_combined[0,:])
+#    return fft_combined
+    ifft_combined = spfft.ifft(fft_combined)
+    fftx_all.append((xf, fft_combined))
+    ix = np.linspace(0, max_data_lengths, ifft_combined.shape[0])
+    
+    all_data.append((ix, ifft_combined))
+    
+    f, ax = plt.subplots(len(all_data), 2, figsize=(8,7))
+    
+    assert len(all_data) == len(fftx_all)
+    
+    print("[MERGE2]: Will plot {} data.".format(len(all_data)))
+    
+    for j in np.arange(len(all_data)):
+        xnew, fxxnew = all_data[j]
+        if len(xnew) != len(fxxnew):
+            ll = min(len(xnew), len(fxxnew))
+        ax[j, 0].plot(xnew[:ll], fxxnew[:ll])   
+        
+#        assert len(xnew) == len(fxxnew), "xnew: {} vs. fxxnew: {}".format(len(xnew), len(fxxnew))
+#        ax[j, 0].plot(xnew, fxxnew)
+    
+    for i in np.arange(len(fftx_all)):
+        xff, fftxx = fftx_all[i]
+        ax[i, 1].plot(xff, 2.0/N*abs(fftxx.imag[:N//2]))
+        
+    
+    plt.show()
+    return None
+
+    # =======================
+#    l = len(data1[joint])
+##    print("l: {}".format(l))
+#
+#    x = np.arange(0, l)
+##    print("x: {} (shape: {})".format(x, x.shape))
+##    print("data[{}]: {}".format(joint, data[joint]))
+#    fx = interp1d(x, data1[joint], kind='cubic', fill_value='extrapolate')
+#    
+#    T = 1.0/800.0
+#
+#    xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+##    print("xf: {} (shape: {})".format(xf, xf.shape))
+#
+##    plt.plot(x, data[joint], xf, fx(xf))
+#
+#    xnew = np.linspace(0, l, N*2, endpoint=True)
+##    print(fx(xf))
+#
+#    fxxnew = fx(xnew)[:-50]     # For some reason, truncate! The inter/extrapolation screwed up!
+#    fftx = spfft.fft(fxxnew)
+##    freq1 = np.fft.fftfreq(N//2)
+#    freq1 = np.linspace(0.0, N*T*10, N)
+#    
+#    l2 = len(data2[joint])
+#    x2 = np.linspace(0, l2-1, l2)
+#    fx2 = interp1d(x2, data2[joint], kind='cubic', fill_value='extrapolate')
+#    fx2xnew = fx2(xnew)[:-50]
+#    
+#    fftx2 = spfft.fft(fx2xnew)
+#    
+#    fftx3 = p*fftx + (1-p)*fftx2
+#    ifftx3 = spfft.ifft(fftx3)
+#    x3corr = spsig.correlate(fxxnew, fx2xnew, method='auto')/(fx2xnew.shape[0]*N)
+#    x3conv = spsig.fftconvolve(fx2xnew, fxxnew)
+#    superimpose = (fxxnew + fx2xnew) / 2.0
+#    
+#    ix = np.linspace(0, l, ifftx3.shape[0])
+#    icorr = np.linspace(0, x3corr.shape[0]-1, x3corr.shape[0])
+#    iconv = np.linspace(0, x3conv.shape[0]-1, x3conv.shape[0])
+#
+#    f, ax = plt.subplots(3, 2, figsize=(10,8))
+#    ax[0,0].plot(xnew[:-50], fxxnew)
+#    ax[1,0].plot(xnew[:-50], fx2xnew)
+#    ax[2,0].plot(ix, ifftx3)
+#    ax[0,1].plot(xf, 2.0/N*abs(fftx.imag[:N//2]))
+#    ax[1,1].plot(xf, 2.0/N*abs(fftx2.imag[:N//2]))
+#    ax[2,1].plot(xf, 2.0/N*abs(fftx3.imag[:N//2]))
+#    
+#    plt.show()
+#    return ifftx3
 
 
 if __name__ == "__main__":
