@@ -7,6 +7,8 @@ import matplotlib.pyplot as plt
 from utils import elapsed, rprint
 from pandas import DataFrame
 
+DEBUG = False
+
 @elapsed
 def merges(*data, **kwargs):
     '''Accepts arbitrary number of data points to merge
@@ -54,12 +56,25 @@ def merges(*data, **kwargs):
         l = len(dd)
         
         x = np.arange(0, l)
-        rprint("[MERGES]: dd: {}", dd)
-        fx = interp1d(x, dd, kind='nearest', fill_value='extrapolate')
+        if DEBUG: rprint("[MERGES]: dd: {}", dd)
+#        fx = interp1d(x, dd, kind='nearest', fill_value='extrapolate')
+        fx = interp1d(x, dd, kind='cubic')#, fill_value='extrapolate')
+
+#        xnew = np.linspace(0, l-1, N*2, endpoint=True)
+        xnew = np.linspace(0, l-1, N, endpoint=True)
         
-        xnew = np.linspace(0, l-1, N*2, endpoint=True)        
+        fxxnew = fx(xnew)#[:-50]
+
+        if DEBUG:
+            rprint("[MERGES]: fxxnew: {}", fxxnew)
+            f, (ax1, ax2) = plt.subplots(2,1, sharex=True)
+
+            ax1.plot(x, dd)
+            ax2.plot(xnew, fxxnew)
+            plt.show()
+
+            raw_input("Press any key to continue...")
         
-        fxxnew = fx(xnew)[:-50]
         fftx = spfft.fft(fxxnew)
         fftx_all.append((xf, fftx))
 #        print(len(xnew), len(dd))
@@ -71,39 +86,34 @@ def merges(*data, **kwargs):
     assert le_p.shape == fftx_all_array.shape, "[MERGE2]: le_p shape: {}, fftx_shape: {}".format(le_p.shape, fftx_all_array.shape)
         
     fft_combined = np.dot(le_p, fftx_all_array)
-    print("[MERGE2]: fft_combined.shape: {}".format(fft_combined.shape))
+    if DEBUG: print("[MERGE2-DEBUG]: fft_combined.shape: {}".format(fft_combined.shape))
 
     ifft_combined = spfft.ifft(fft_combined)
     fftx_all.append((xf, fft_combined))
     ix = np.linspace(0, max_data_lengths, ifft_combined.shape[0])
+    if DEBUG: print("[MERGE2-DEBUG]: ifft_combined.shape: {}".format(ifft_combined.shape))
     
-    # interpolate result
-#    ln = ifft_combined.shape[0]
-#    x = np.arange(0, ln)
-#    ifft_interp = interp1d(x, ifft_combined, kind='cubic')
-#    xnew = np.linspace(0, l-1, N*2, endpoint=True)
+    # Add the combined Fourier-inversed signal (ifft_combined is the final result)
     all_data.append((ix, ifft_combined))
-#    all_data.append((ix, ifft_interp(xnew)))
-    
-    f, ax = plt.subplots(len(all_data), 2, figsize=(8,7))
     
     assert len(all_data) == len(fftx_all)
     
-    print("[MERGE2]: Will plot {} data.".format(len(all_data)))
+    if DEBUG:
+        f, ax = plt.subplots(len(all_data), 2, figsize=(8,7))
+        print("[MERGE2-DEBUG]Will plot {} data.".format(len(all_data)))
     
-    for j in np.arange(len(all_data)):
-        xnew, fxxnew = all_data[j]
-        if len(xnew) != len(fxxnew):
+        for j in np.arange(len(all_data)):
+            xnew, fxxnew = all_data[j]
             ll = min(len(xnew), len(fxxnew))
-        ax[j, 0].plot(xnew[:ll], fxxnew[:ll])   
+            ax[j, 0].plot(xnew[:ll], fxxnew[:ll])
+
+    #        assert len(xnew) == len(fxxnew), "xnew: {} vs. fxxnew: {}".format(len(xnew), len(fxxnew))
+    #        ax[j, 0].plot(xnew, fxxnew)
         
-#        assert len(xnew) == len(fxxnew), "xnew: {} vs. fxxnew: {}".format(len(xnew), len(fxxnew))
-#        ax[j, 0].plot(xnew, fxxnew)
-    
-    for i in np.arange(len(fftx_all)):
-        xff, fftxx = fftx_all[i]
-        ax[i, 1].plot(xff, 2.0/N*abs(fftxx.imag[:N//2]))
+        for i in np.arange(len(fftx_all)):
+            xff, fftxx = fftx_all[i]
+            ax[i, 1].plot(xff, 2.0/N*abs(fftxx.imag[:N//2]))
+
+        plt.show()
         
-    
-    plt.show()
     return ifft_combined

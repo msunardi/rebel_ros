@@ -1,5 +1,6 @@
 import random, math
 from numpy.random import choice as npchoice
+import numpy as np
 import pandas as pd
 
 from utils import *
@@ -454,20 +455,21 @@ def concurrent_expansion(sequence, vocab):
     # 3. Combine into one structure
     return loo, collect_sequence
 
-def merge_processing(sequence, vocab):
+# Joints are given as argument for unittest; default value is all joints. 
+def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']):
     '''
     sequence: e.g.
        - single: a~b~c;
        - multiple: a~b; c~d;
     '''
+    all_joints = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
+
     rprint("[MERGE_PROCESSING]: sequence: {}", sequence)
     
     split_merge = [seq.strip() for seq in sequence.split(';') if seq != '']
+    
     rprint("[MERGE_PROCESSING]: split_merge: {}", split_merge)
-    
-    # Joints, in order
-    joints = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
-    
+
     for m in split_merge:
         # What if vocab is not provided
         if not vocab:
@@ -487,16 +489,24 @@ def merge_processing(sequence, vocab):
                 return split_merge
             
             # Otherwise, expand the event
-            loo, _ = expand_word(m_event, vocab, loo=[], expansion=[])
-            m_collect_events.append(pd.DataFrame(loo, columns=joints))
+            # preloo gives the joint positions sequences
+            preloo, _ = expand_word(m_event, vocab, loo=[], expansion=[])
+
+            # Convert to numpy arrays and only select data according to the joints argument
+            loo = pd.DataFrame(preloo, columns=all_joints)
+            if DEBUG:
+                rprint("[MERGE PROCESSING]: loo: {}", loo)
+                rprint("[MERGE PROCESSING]: selected joints: {}", joints)
+#            m_collect_events.append(pd.DataFrame(loo, columns=joints))
+            m_collect_events.append(loo[joints])
                     
     # What if there's only one event?        
     # What if there are only two events?
     # What if there are more than two events?
-#    rprint("[MERGE PROCESSING]: m_collect_events: \n{}\n{}", *m_collect_events)
+    if DEBUG: rprint("[MERGE PROCESSING]: m_collect_events: \n{}\n{}", *m_collect_events)
     merged = {}
     for j in joints:
-#        rprint("[MERGE PROCESSING]: j: {}", j)
+        if DEBUG: rprint("[MERGE PROCESSING]: j: {}", j)
         merged[j] = merge_proc_data(*m_collect_events, joint=j)
         
     return merged
