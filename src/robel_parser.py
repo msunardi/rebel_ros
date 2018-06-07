@@ -493,11 +493,13 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
             preloo, _ = expand_word(m_event, vocab, loo=[], expansion=[])
 
             # Convert to numpy arrays and only select data according to the joints argument
+            # 1. Collect all joints ...
             loo = pd.DataFrame(preloo, columns=all_joints)
             if DEBUG:
                 rprint("[MERGE PROCESSING]: loo: {}", loo)
                 rprint("[MERGE PROCESSING]: selected joints: {}", joints)
 #            m_collect_events.append(pd.DataFrame(loo, columns=joints))
+            # 2. Pick subset of data according to 'joints' argument
             m_collect_events.append(loo[joints])
                     
     # What if there's only one event?        

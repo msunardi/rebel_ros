@@ -11,9 +11,13 @@ import robel_parser as rp
 
 import makana_jimmy_program as mjp
 
-vocab = mjp.position_library
-vocab['yes'] = '(& yes_1 yes_2 yes_3 stand)'
-vocab['wow'] = '(& wow_1 wow_2 wow_3 wow_4 stand)'
+import rebel_server as rs
+
+#vocab = mjp.position_library
+#vocab['yes'] = '(& yes_1 yes_2 yes_3 stand)'
+#vocab['wow'] = '(& wow_1 wow_2 wow_3 wow_4 stand)'
+#vocab['alas2'] = '(& alas_2_0 alas_2_1 alas_2_2 alas_2_3 alas_2_4 alas_2_5 alas_2_6 stand)'
+vocab = rs.vocab
 
 class TestParser(unittest.TestCase):
     
@@ -46,11 +50,14 @@ class TestParser(unittest.TestCase):
         self.assertEquals(rp.merge_processing(merge, None), ['a~b', 'c~d'])
         
     def test_merge_processing_motion(self):
-        rp.DEBUG = True
+#        rp.DEBUG = True
         rp.ap.DEBUG = True
-        merge = rp.parsex('(~ yes wow)')
-        print(merge)
-        self.assertEquals(rp.merge_processing(merge, vocab, joints=['HEAD_TILT']), ['yes~wow'])
+#        merge = rp.parsex('(~ alas2 wow yes)')
+        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
+#        print(merge)
+        merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
+#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
+        self.assertTrue(len(merge_processed) > 0)
 
 if __name__ == "__main__":
 #    rp.DEBUG = True
