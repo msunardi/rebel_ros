@@ -3,8 +3,9 @@ from numpy.random import choice as npchoice
 import numpy as np
 import pandas as pd
 
-from utils import *
+from utils import rprint
 import action_processors as ap
+import ast
 
 DEBUG = False
 
@@ -209,8 +210,11 @@ def merge(*args):
     if DEBUG:
         rprint("[MERGE] args: {}", list(args))
     if len(args) <= 1:
+        if type(args[0]) in (list, float):
+            return str(args[0]) + ';'
         return args[0].strip() + ';'
-    return "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
+
+    return ("~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]]))
 
 def predicate(*args):
     # If-then [-else]
@@ -248,11 +252,11 @@ global_env = standard_env()
 
 def tokenizer(expression):
     if DEBUG:
-        print "Tokenizer - expression: %s" % (expression)
+        print("Tokenizer - expression: %s" % (expression))
     tokens = expression.replace('(', ' ( ').replace(')', ' ) ').replace('+', ' + ').replace('&', ' & ').replace('*', ' * ').\
     replace('[', ' [ ').replace(']',' ] ').split()
     if DEBUG:
-        print "Tokens: ", tokens
+        print("Tokens: ", tokens)
     return tokens
 
 def read_from_tokens(tokens):
@@ -297,28 +301,28 @@ def parse(expression):
 
 def eval(x, env=global_env):
     if DEBUG:
-        print "x: %s" % (x)
+        print("x: %s" % (x))
     if isinstance(x, Symbol):
         if DEBUG:
-            print "Symbol: %s" % (x)
+            print("Symbol: %s" % (x))
         if x in chars or x in acts: # if x is a variable, return as-is
             return "%s " % x
         if x not in env:
             if DEBUG:
-                print "%s is neither a known symbol or an operator." % x
+                print("%s is neither a known symbol or an operator." % x)
             return x
         return env[x]	# otherwise, x is an operator
     elif isinstance(x, Number):
         if DEBUG:
-            print "Number: %s" % x
+            print("Number: %s" % x)
         return x
     elif isinstance(x, List) and all([isinstance(c, float) for c in x]):
         if DEBUG:
-            print "List: %s" % x
+            print("List: %s" % x)
         return x
     else:
         if DEBUG:
-            print "Else, is not a symbol or number: %s" % x
+            print("Else, is not a symbol or number: %s" % x)
 
         if not x:
             return 0
@@ -340,8 +344,8 @@ def eval(x, env=global_env):
             args = [eval(arg, env) for arg in y]
         # args = [eval(arg, env) for arg in y]
         if DEBUG:
-            print "proc: %s" % (proc)
-            print "args: %s" % (args)
+            print("proc: %s" % (proc))
+            print("args: %s" % (args))
     return proc(*args)
 
 def parsex(exp):
@@ -352,7 +356,7 @@ def parsex(exp):
 #    print "Evaluating: %s" % (exp)
     tokens = parse(exp)
     if DEBUG:
-        print "Evaluating: %s" % (exp)
+        print("Evaluating: %s" % (exp))
         print("PARSEX(): Tokens: {}".format(tokens))
     word = eval(tokens)
     if DEBUG:
@@ -461,6 +465,7 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     sequence: e.g.
        - single: a~b~c;
        - multiple: a~b; c~d;
+       - with prob
     '''
     all_joints = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
 
@@ -470,6 +475,7 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     
     rprint("[MERGE_PROCESSING]: split_merge: {}", split_merge)
 
+    m_weights = None  # placeholder for merge weights
     expansion = []
     for m in split_merge:
         # What if vocab is not provided
@@ -480,6 +486,25 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
         # Split m into individual events
         m_split_events = m.split('~')
         
+        # Check if weights are provided at the last element
+        if m_split_events[-1] not in vocab:
+            try:
+                m_weights = ast.literal_eval(m_split_events[-1])
+                assert type(m_weights) == list, "[MERGE PROCESSING]:\
+                last element is not in vocab, but not weights either: {}\
+                ".format(m_weights)
+
+                m_split_events = m_split_events[:-1]  # get rid of the weights from events list
+
+                assert len(m_weights) == len(m_split_events), "[MERGE PROCESSING]:\
+                weights are provided, but doesn't match the events: weights={},\
+                events={}".format(len(m_weights), len(m_split_events))
+
+                rprint("[MERGE PROCESSING]: Weights are provided: {}", m_weights)
+
+            except ValueError as ve:
+                rprint("[MERGE PROCESSING]: No weights are provided")
+
         # What if any of the events are not part of the vocab?
         # What if a subset of the events are not part of the vocab?
         m_collect_events = []
@@ -516,10 +541,10 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     merged = {}
     for j in joints:
         if DEBUG: rprint("[MERGE PROCESSING]: j: {}", j)
-        merged[j] = merge_proc_data(*m_collect_events, joint=j)
+        merged[j] = merge_proc_data(*m_collect_events, joint=j, weights=m_weights)
         
     return m_sequence, expansion
 
 def merge_proc_data(*all_data, **kwargs):
     # For each item in the data, perform fft, combine (sum) and return the combined inverse fft
-    return ap.merges(*all_data, joint=kwargs['joint'])
+    return ap.merges(*all_data, joint=kwargs['joint'], w=kwargs['weights'])

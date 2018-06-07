@@ -22,15 +22,15 @@ def merges(*data, **kwargs):
     N=400
     if 'N' in kwargs:
         N = kwargs['N']
-    p=[1.0]
-    if 'p' in kwargs:
-        p = kwargs['p']
+    w=[1.0]
+    if 'w' in kwargs and kwargs['w']:  # if w != None
+        w = kwargs['w']
     else:
-        p = np.ones((len(data),))/np.float(len(data))
-        rprint("[MERGES]: P not provided. Assumes equal distribution for {} items.\np={}", len(data), p)
+        w = np.ones((len(data),))/np.float(len(data))
+        rprint("[MERGES]: P not provided. Assumes equal distribution for {} items.\np={}", len(data), w)
     
-    assert len(p) == len(data), "[MERGE2]: Mismatch number of values in p to perform weighted sum! p size={}, data size={}".format(len(p), len(data))
-    assert sum(p) == 1.0, "[MERGE2]: P value does not sum to 1: {}".format(p)
+    assert len(w) == len(data), "[MERGE2]: Mismatch number of values in p to perform weighted sum! p size={}, data size={}".format(len(w), len(data))
+    assert sum(w) == 1.0, "[MERGE2]: P value does not sum to 1: {}".format(w)
     
     LL = len(data)
     if LL == 1:
@@ -81,11 +81,11 @@ def merges(*data, **kwargs):
         all_data.append((xnew, fxxnew))
         
     # Combined data
-    le_p = np.array(p)
+    le_w = np.array(w)
     fftx_all_array = np.array(fftx_all)[:,1]
-    assert le_p.shape == fftx_all_array.shape, "[MERGE2]: le_p shape: {}, fftx_shape: {}".format(le_p.shape, fftx_all_array.shape)
+    assert le_w.shape == fftx_all_array.shape, "[MERGE2]: le_p shape: {}, fftx_shape: {}".format(le_p.shape, fftx_all_array.shape)
         
-    fft_combined = np.dot(le_p, fftx_all_array)
+    fft_combined = np.dot(le_w, fftx_all_array)
     if DEBUG: print("[MERGE2-DEBUG]: fft_combined.shape: {}".format(fft_combined.shape))
 
     ifft_combined = spfft.ifft(fft_combined)

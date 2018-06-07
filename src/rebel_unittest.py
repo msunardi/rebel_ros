@@ -49,10 +49,47 @@ class TestParser(unittest.TestCase):
         print(merge)
         self.assertEquals(rp.merge_processing(merge, None), ['a~b', 'c~d'])
         
+    def test_merge_with_weights(self):
+        merge = rp.parsex('(~ a b c [0.2 0.8])')
+        print(merge)
+        self.assertEquals(rp.merge_processing(merge, None), ['a~b~c~[0.2, 0.8]'])
+
     def test_merge_processing_motion(self):
 #        rp.DEBUG = True
 #        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes)')
+#        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
+#        print(merge)
+        merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
+#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
+        self.assertTrue(len(merge_processed) > 0)
+
+    def test_merge_processing_motion_correct_weights(self):
+#        rp.DEBUG = True
+#        rp.ap.DEBUG = True
+        merge = rp.parsex('(~ alas2 wow yes [0.5 0.3 0.2])')
+#        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
+#        print(merge)
+        merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
+#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
+        self.assertTrue(len(merge_processed) > 0)
+
+    @unittest.expectedFailure
+    def test_merge_processing_motion_missing_weights(self):
+#        rp.DEBUG = True
+#        rp.ap.DEBUG = True
+        merge = rp.parsex('(~ alas2 wow yes [0.5 0.2])')
+#        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
+#        print(merge)
+        merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
+#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
+        self.assertTrue(len(merge_processed) > 0)
+
+    @unittest.expectedFailure
+    def test_merge_processing_motion_weights_not_sum_to_1(self):
+#        rp.DEBUG = True
+#        rp.ap.DEBUG = True
+        merge = rp.parsex('(~ alas2 wow yes [0.5 0.2 0.1])')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
 #        print(merge)
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
