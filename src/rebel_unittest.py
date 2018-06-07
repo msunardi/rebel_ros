@@ -39,6 +39,7 @@ class TestParser(unittest.TestCase):
         self.assertEquals(rp.parsex('(| a b c)'), 'a|b|c;')
 
     def test_parsex_merge(self):
+#        rp.DEBUG = True
         self.assertEquals(rp.parsex('(~ a b c)'), 'a~b~c;')
         
     def test_parsex_multiple_merge(self):

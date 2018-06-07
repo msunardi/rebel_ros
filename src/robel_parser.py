@@ -212,9 +212,11 @@ def merge(*args):
     if len(args) <= 1:
         if type(args[0]) in (list, float):
             return str(args[0]) + ';'
+
         return args[0].strip() + ';'
 
-    return ("~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]]))
+    result = "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
+    return result
 
 def predicate(*args):
     # If-then [-else]
@@ -382,7 +384,7 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
         print("Processing merge ...")
         return merge_processing(word, vocab)
 
-    for c in word.replace('\n','').replace('\r','').split():
+    for c in word.replace('\n','').replace('\r','').replace(';','').split():
         cmd = vocab[c]
         print("expand_sequence(): %s: %s" % (c, cmd))
         if c in vocab.keys() and type(cmd) == str:
