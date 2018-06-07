@@ -60,9 +60,7 @@ class TestParser(unittest.TestCase):
 #        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes)')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
-#        print(merge)
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
-#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
         self.assertTrue(len(merge_processed) > 0)
 
     def test_merge_processing_motion_correct_weights(self):
@@ -70,9 +68,7 @@ class TestParser(unittest.TestCase):
 #        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes [0.5 0.3 0.2])')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
-#        print(merge)
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
-#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
         self.assertTrue(len(merge_processed) > 0)
 
     @unittest.expectedFailure
@@ -81,9 +77,7 @@ class TestParser(unittest.TestCase):
 #        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes [0.5 0.2])')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
-#        print(merge)
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
-#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
         self.assertTrue(len(merge_processed) > 0)
 
     @unittest.expectedFailure
@@ -92,9 +86,7 @@ class TestParser(unittest.TestCase):
 #        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes [0.5 0.2 0.1])')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
-#        print(merge)
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
-#        self.assertEquals(merge_processed, ['alas2~wow~yes'])
         self.assertTrue(len(merge_processed) > 0)
 
 if __name__ == "__main__":
