@@ -368,13 +368,13 @@ def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
 
     # Check if there is any concurrency operators
     if '|' in word:
-        word = [w for w in word.split(';') if len(w) > 0]
+        #word = [w for w in word.split(';') if len(w) > 0]
 
         print("Processing concurrency ... ")
         return concurrent_expansion(word, vocab)
 
     if '~' in word:
-        word = [w for w in word.split(';') if len(w) > 0]
+        #word = [w for w in word.split(';') if len(w) > 0]
         print("Processing merge ...")
         return merge_processing(word, vocab)
 
@@ -470,6 +470,7 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     
     rprint("[MERGE_PROCESSING]: split_merge: {}", split_merge)
 
+    expansion = []
     for m in split_merge:
         # What if vocab is not provided
         if not vocab:
@@ -482,6 +483,7 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
         # What if any of the events are not part of the vocab?
         # What if a subset of the events are not part of the vocab?
         m_collect_events = []
+        m_sequence = []
         for m_event in m_split_events:
             if m_event not in vocab: 
                 m_collect_events = None  # Clear memory
@@ -492,8 +494,10 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
             # preloo gives the joint positions sequences
             preloo, _ = expand_word(m_event, vocab, loo=[], expansion=[])
 
+            expansion.append(_)
             # Convert to numpy arrays and only select data according to the joints argument
             # 1. Collect all joints ...
+            m_sequence.extend(preloo)
             loo = pd.DataFrame(preloo, columns=all_joints)
             if DEBUG:
                 rprint("[MERGE PROCESSING]: loo: {}", loo)
@@ -505,13 +509,16 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     # What if there's only one event?        
     # What if there are only two events?
     # What if there are more than two events?
-    if DEBUG: rprint("[MERGE PROCESSING]: m_collect_events: \n{}\n{}", *m_collect_events)
+    if DEBUG: 
+        rprint("[MERGE PROCESSING]: m_collect_events: \n{}\n{}", *m_collect_events)
+        rprint("[MERGE PROCESSING]: m_sequence: \n{}", m_sequence)
+        rprint("[MERGE PROCESSING]: expansion: \n{}", expansion)
     merged = {}
     for j in joints:
         if DEBUG: rprint("[MERGE PROCESSING]: j: {}", j)
         merged[j] = merge_proc_data(*m_collect_events, joint=j)
         
-    return merged
+    return m_sequence, expansion
 
 def merge_proc_data(*all_data, **kwargs):
     # For each item in the data, perform fft, combine (sum) and return the combined inverse fft

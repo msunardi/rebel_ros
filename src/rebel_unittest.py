@@ -51,9 +51,9 @@ class TestParser(unittest.TestCase):
         
     def test_merge_processing_motion(self):
 #        rp.DEBUG = True
-        rp.ap.DEBUG = True
-#        merge = rp.parsex('(~ alas2 wow yes)')
-        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
+#        rp.ap.DEBUG = True
+        merge = rp.parsex('(~ alas2 wow yes)')
+#        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
 #        print(merge)
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
 #        self.assertEquals(merge_processed, ['alas2~wow~yes'])
