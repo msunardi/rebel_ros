@@ -57,7 +57,7 @@ class TestParser(unittest.TestCase):
 
     def test_merge_processing_motion(self):
 #        rp.DEBUG = True
-#        rp.ap.DEBUG = True
+        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes)')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
@@ -65,7 +65,7 @@ class TestParser(unittest.TestCase):
 
     def test_merge_processing_motion_correct_weights(self):
 #        rp.DEBUG = True
-#        rp.ap.DEBUG = True
+        rp.ap.DEBUG = True
         merge = rp.parsex('(~ alas2 wow yes [0.5 0.3 0.2])')
 #        merge = rp.parsex('(~ leila_dances muscle_combo_2)')
         merge_processed = rp.merge_processing(merge, vocab, joints=['HEAD_TILT'])
