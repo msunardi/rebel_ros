@@ -8,10 +8,10 @@ def rebel_client(xinput):
 	rospy.wait_for_service('rebel_parser_server')
 	try:
 		rebel_parser = rospy.ServiceProxy('rebel_parser_server', Rebel)
-		resp = rebel_parser(xinput)
+		resp = rebel_parser(str(xinput))
 		return resp.word, resp.sequence
 	except rospy.ServiceException, e:
-		print "Service call failed: %s" % e
+		print("Service call failed: %s" % e)
 
 def usage():
 	return "Foo'!"
@@ -22,5 +22,5 @@ if __name__ == "__main__":
 	else:
 		print usage()
 		sys.exit()
-	print "Requesting expression: %s" % exp
-	print "Parsed expression: %s ===> %s" % (exp, rebel_client(exp))
+	print("Requesting expression: %s" % exp)
+	print("Parsed expression: {} ===> {}".format(exp, rebel_client(exp)))
