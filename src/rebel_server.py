@@ -89,7 +89,7 @@ def parse(request):
     # word = parsex(expression)
     sequence = []
     expansion = []
-    sequence, expansion = rp.expand_sequence(expression, vocab)
+    sequence, expansion = rp.expand_sequence(expression, vocab, expansion)
     # If generic behavior name, choose a corresponding expression
     # print "Word: %s" % word
 
@@ -106,6 +106,7 @@ def parse(request):
     # Return expanded string or sequence?
 
     # sequence = [vocab[k] for k in word.replace('\n','').replace('\r','').split( )]
+    print("Sequence before JimmyDo: {}".format(sequence))
     sequence = mjp.JimmyDo(sequence)
 
 
@@ -114,14 +115,14 @@ def parse(request):
 
     # expansion = None
     # print expansion
-    response = ''
-    if len(expansion) > 0:
-        for exp in expansion[1:]:
-            response += str(exp)
-            print("Response: %s" % response)
+    # response = ''
+    # if len(expansion) > 0:
+    #     for exp in expansion[1:]:
+    #         response += str(exp)
+    #         print("Response: {} (total: {})".format(response, len(expansion)))
     # for s, v in sequence:
     # 	print "%s: %s" % (s, v)
-    return RebelResponse(response, str(sequence))
+    return RebelResponse(expansion[0], str(sequence))
     # return {'word': response, 'sequence': sequence}
 
 def rebel_server():
