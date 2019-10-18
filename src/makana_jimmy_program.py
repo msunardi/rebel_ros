@@ -325,8 +325,11 @@ def MakePositionList(Positions, Timing=None):
     CurrentPosition = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     for servo in range(0,20):
         # CurrentPosition[servo] = int(round(InitialPosition[servo] + Step[servo]*position))
-        CurrentPosition[servo] = Positions[servo]        
-        body[ServoNames[servo]] = Positions[servo]
+        try:
+            CurrentPosition[servo] = Positions[servo]
+            body[ServoNames[servo]] = Positions[servo]
+        except IndexError as ie:
+            print("Index error: {}".format(servo))
     print body, timing
     return [body, timing]
 
@@ -414,8 +417,12 @@ def collectSequence(sequence):
         for n in ServoNames:
             output[n] += [s[0][n]]
     #HACK!!
-        output['Time'] += [100 + (np.random.normal() * 100)]
-        output['PauseTime'] += [10 + np.random.random() * 200]
+        output['Time'] += [np.random.normal(loc=70, scale=3)]
+        output['PauseTime'] += [np.random.normal(loc=50, scale=2)]
+        # output['Time'] += [70]
+        # output['PauseTime'] += [32]
+        # output['Time'] += [100 + (np.random.normal() * 100)]
+        # output['PauseTime'] += [10 + np.random.random() * 200]
         # output['Time'] += [100]
         # output['PauseTime'] += [10]
     return output
@@ -448,6 +455,7 @@ def XMLEverything(XML_Out, PositionSequence): #all the xml stuff put in one def
 
 # new version - not creating .pagelist file
 def JimmyDo(seq):
+    print("\n***Seq length: {}\n****".format(len(seq)))
     return ProcessPositions(seq)    # 
 
 
