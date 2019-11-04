@@ -74,7 +74,8 @@ vocab['alas_mirror'] = '(& alas_mirror_0 alas_mirror_1 alas_mirror_2 alas_mirror
 vocab['alas2'] = '(& alas_2_0 alas_2_1 alas_2_2 alas_2_3 alas_2_4 alas_2_5 alas_2_6 stand)'
 vocab['nope'] = '(& nope_nope_0 nope_nope_1 nope_nope_2 nope_nope_3 nope_nope_4 nope_nope_5 nope_nope_6 stand)'
 vocab['waiting'] = '(* (+ yawn nope wait_0 wait_1) 0.7)'
-
+vocab['lookdownup'] = '(& lookdownup_1 lookdownup_2 lookdownup_3 lookdownup_4 lookdownup_5 lookdownup_6 lookdownup_7 stand)'
+vocab['wait_2'] = '(& wait_2_0 wait_2_1 wait_2_2 wait_2_3 wait_2_4 wait_2_5 wait_2_6 stand)'
 
 
 # Add new keys
@@ -95,12 +96,13 @@ def parse(request):
 
     # THIS IS A HACK! THE SEQUENCE WILL KEEP EXPANDING OTHERWISE
     # Still need to figure out why it is so
-
     # TODO: FIX THIS BUG!!!
     print("parse(): expansion: {}".format(expansion))
-    print("parse(): sequence RAW: {}".format(sequence))
+    #print("parse(): sequence RAW: {}".format(sequence))
 #    expansion_length = len(expansion[-1].split(" "))
 #    sequence = sequence[-expansion_length:]
+    expansion_length = len(expansion[-1].split(" "))
+    sequence = sequence[-expansion_length:]
     print("Sequence [PRE]: %s" % sequence)
 
     # Return expanded string or sequence?
@@ -115,14 +117,18 @@ def parse(request):
 
     # expansion = None
     # print expansion
+    #<<<<<<< Updated upstream
     # response = ''
     # if len(expansion) > 0:
     #     for exp in expansion[1:]:
     #         response += str(exp)
     #         print("Response: {} (total: {})".format(response, len(expansion)))
+    if len(expansion) > 0:
+        response = str(expansion[-1])
+        print("Response: %s" % response)
     # for s, v in sequence:
     # 	print "%s: %s" % (s, v)
-    return RebelResponse(expansion[0], str(sequence))
+    return RebelResponse(expansion[-1], str(sequence))
     # return {'word': response, 'sequence': sequence}
 
 def rebel_server():

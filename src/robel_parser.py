@@ -115,7 +115,7 @@ def union2(*args):
             p = args[-1]
             actions = args[:-1]
             if len(p) != len(actions):
-                raise Exception('List of probabilities must have the same size as the number of arguments.')
+                raise Exception('[UNION2] List of probabilities must have the same size as the number of arguments.')
 
         elif isinstance(args[-1], Number):
             px = args[-1]   # The probability is one number; is assigned to the first argument
@@ -222,7 +222,7 @@ def predicate(*args):
     # If-then [-else]
     test = args[0]
     if len(args) > 3:
-        raise Exception('PREDICATE: too many arguments')
+        raise Exception('[PREDICATE] too many arguments')
     elif len(args) == 2:
         if test():
             return eval(args[1])
