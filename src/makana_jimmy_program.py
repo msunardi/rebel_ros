@@ -14,7 +14,7 @@ position_library = {
     'arms_to_512': [512, 512, 512, 512, 512, 512, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
     'stand': [512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512],
     'bow': [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 247, 774, -1, -1, -1, -1, -1, -1, -1, -1],
-    'head_40_left': [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 666, -1], 
+    'head_40_left': [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 666, -1],
     'head_90_left': [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 820, -1],
     'head_40_right': [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 358, -1],
     'head_90_right': [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 204, -1],
@@ -240,11 +240,11 @@ def InsertPositionLibrary(s):
         s[key] = [position_library[key]]
 
 def XMLPositionPair(XML_Out, InitialPosition, NextPosition): #writes the inside of the xml function + calculates step intervals
-    
-    ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT'] 
+
+    ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
     Step = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
-    for servo in range(0,20): 
+    for servo in range(0,20):
         Step[servo] = (NextPosition[servo] - InitialPosition[servo])/6.0
         print "Step[servo]: %s" % Step[servo]
 
@@ -252,7 +252,7 @@ def XMLPositionPair(XML_Out, InitialPosition, NextPosition): #writes the inside 
     print InitialPosition
     print "Next Position: "
     print NextPosition
-    
+
     for position in range(0,7):
         XML_Out.write('           <PoseClass>\n')
         XML_Out.write('               <PoseIndex>0</PoseIndex>\n')
@@ -273,7 +273,7 @@ def XMLPositionPair(XML_Out, InitialPosition, NextPosition): #writes the inside 
         print CurrentPosition
 
 def XMLPositionList(XML_Out, Positions):
-    ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT'] 
+    ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
     XML_Out.write('           <PoseClass>\n')
     XML_Out.write('               <PoseIndex>0</PoseIndex>\n')
     XML_Out.write('               <PoseStep>0</PoseStep>\n')
@@ -297,7 +297,7 @@ def MakePositionList(Positions, Timing=None):
     ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW',\
     'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH',\
     'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL',\
-    'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT'] 
+    'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
     body = {'R_SHO_PITCH': 512,
                  'L_SHO_PITCH': 512,
                  'R_SHO_ROLL': 512,
@@ -377,7 +377,7 @@ def XMLMiddle(XML_Out, PositionSequence):
     'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH',\
     'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL',\
     'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
-    for i in range(len(PositionSequence)):     
+    for i in range(len(PositionSequence)):
         NextPosition = PositionSequence[i]
         print "NextPosition: %s" % NextPosition
         NextPosition = MergePositions(CurrentPosition, NextPosition)
@@ -412,19 +412,25 @@ def collectSequence(sequence):
     output = dict({key: [] for key in ServoNames})
     output['Time'] = []
     output['PauseTime'] = []
-    
-    for s in sequence:
+
+    l = len(sequence) - 1
+
+    for i, s in enumerate(sequence):
         for n in ServoNames:
             output[n] += [s[0][n]]
-    #HACK!!
-        output['Time'] += [np.random.normal(loc=70, scale=3)]
-        output['PauseTime'] += [np.random.normal(loc=50, scale=2)]
-        # output['Time'] += [70]
-        # output['PauseTime'] += [32]
-        # output['Time'] += [100 + (np.random.normal() * 100)]
-        # output['PauseTime'] += [10 + np.random.random() * 200]
-        # output['Time'] += [100]
-        # output['PauseTime'] += [10]
+        #HACK!! Manual add of Time and PauseTime
+        if i == l:
+            output['Time'] += [150]
+            output['PauseTime'] += [200]
+        else:
+            output['Time'] += [np.random.normal(loc=70, scale=3)]
+            output['PauseTime'] += [np.random.normal(loc=50, scale=2)]
+            # output['Time'] += [70]
+            # output['PauseTime'] += [10]
+            # output['Time'] += [100 + (np.random.normal() * 100)]
+            # output['PauseTime'] += [10 + np.random.random() * 200]
+            # output['Time'] += [100]
+            # output['PauseTime'] += [10]
     return output
 
 def Repeat(n, s):
@@ -440,8 +446,8 @@ def Random():
         s = random.randint(MinPosition[i], MaxPosition[i])
         result = result + [s]
     return [result]
-    
-    
+
+
 def XMLEverything(XML_Out, PositionSequence): #all the xml stuff put in one def
     XMLStart(XML_Out)
     XMLMiddle(XML_Out, PositionSequence)
@@ -456,7 +462,7 @@ def XMLEverything(XML_Out, PositionSequence): #all the xml stuff put in one def
 # new version - not creating .pagelist file
 def JimmyDo(seq):
     print("\n***Seq length: {}\n****".format(len(seq)))
-    return ProcessPositions(seq)    # 
+    return ProcessPositions(seq)    #
 
 
 
