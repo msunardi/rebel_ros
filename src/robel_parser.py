@@ -369,6 +369,7 @@ def parsex(exp):
 
 def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
     word = parsex(sequence)
+    expansion = []
     expansion += [word]
     print("expand_sequence(): Word: {}".format(word))
 
