@@ -74,7 +74,7 @@ vocab['alas_mirror'] = '(& alas_mirror_0 alas_mirror_1 alas_mirror_2 alas_mirror
 vocab['alas2'] = '(& alas_2_0 alas_2_1 alas_2_2 alas_2_3 alas_2_4 alas_2_5 alas_2_6 stand)'
 vocab['nope'] = '(& nope_nope_0 nope_nope_1 nope_nope_2 nope_nope_3 nope_nope_4 nope_nope_5 nope_nope_6 stand)'
 vocab['waiting'] = '(* (+ yawn nope wait_0 wait_1) 0.7)'
-
+vocab['home'] = 'initial_stand'
 
 
 # Add new keys
