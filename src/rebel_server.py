@@ -79,6 +79,7 @@ vocab['home'] = 'initial_stand'
 
 # Add new keys
 rp.acts += vocab.keys()
+rp.Xvocab = vocab  # hack to make subtraction work
 # rp.update_vocab(vocab.keys())
 
 def parse(request):

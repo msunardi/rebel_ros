@@ -9,6 +9,8 @@ import ast
 
 DEBUG = False
 
+Xvocab = {} # warning hack to make subtraction work
+
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
          'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'down', 'left', 'right', 'wander', \
@@ -224,11 +226,35 @@ def subtract(*args):
     rprint("[SUBTRACT] argsL {}", list(args))
     if len(args) > 2:
         raise ValueError('[SUBTRACT] subtraction can only have two arguments.')
+
+    # to_subtract = [f.strip() for f in args[1].split(' ') if f != '']
+    # subtract_from = [f.strip() for f in args[0].split(' ') if f != '']
+
+    # Xvocab must be initialized though
+    argg = [f.strip() for f in args[0].split(' ') if f != '']
+
+    if Xvocab:
+        arggh = []
+        seq = []
+        expans = []  # Add this when calling expand_word2 so the list doesn't continue expanding
+        for g in argg:
+            if g in Xvocab:
+                print('ah')
+                seq, expans = expand_word2(Xvocab[g], Xvocab, expans)
+                rprint("[SUBTRACT] {} \n{}".format(seq, expans))
+                arggh.extend(seq)
+            else:
+                print('eh')
+                arggh.append(g)
+        argg = arggh
+    rprint("[SUBTRACT] subtract from: {}".format(argg))
+    subtract_from = argg
     to_subtract = [f.strip() for f in args[1].split(' ') if f != '']
-    subtract_from = [f.strip() for f in args[0].split(' ') if f != '']
-    if DEBUG:
-        rprint("[SUBTRACT] to subtract: {}".format(to_subtract))
-        rprint("[SUBTRACT] subtract from: {}".format(subtract_from))
+
+    # if DEBUG:
+    rprint("[SUBTRACT] to subtract: {}".format(to_subtract))
+    rprint("[SUBTRACT] subtract from: {}".format(subtract_from))
+
     for sub in to_subtract:
         while sub in subtract_from:
             subtract_from.pop(subtract_from.index(sub))
@@ -439,6 +465,28 @@ def expand_word(seq, vocab, loo=[], expansion=[]):
 #    else:
     print("expand_word(): Done - Foobar!")
     print("expand_word(): loo: {}".format(loo))
+    if type(expansion) == list:
+        expansion = [ex.strip() for ex in expansion]
+    else:
+        expansion = expansion.strip()
+    return loo, expansion
+
+def expand_word2(sequence, vocab, loo=[], expansion=[]):
+    # Only return the expanded words (currently only used by subtraction)
+    word = parsex(sequence)
+    expansion = []
+    expansion += [word]
+    print("expand_word(): Word: {}".format(word))
+    for c in word.replace('\n','').replace('\r','').split():
+        cmd = vocab[c]
+        print("expand_word(): %s: %s" % (c, cmd))
+        if c in vocab.keys() and type(cmd) == str:
+            expand_word2(cmd, vocab, loo)
+            continue
+        loo += [c]
+#    else:
+    print("expand_word(): Done - Foobar!")
+    print("expanded word(): loo: {}".format(loo))
     if type(expansion) == list:
         expansion = [ex.strip() for ex in expansion]
     else:
