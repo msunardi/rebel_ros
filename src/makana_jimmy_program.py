@@ -246,12 +246,12 @@ def XMLPositionPair(XML_Out, InitialPosition, NextPosition): #writes the inside 
 
     for servo in range(0,20):
         Step[servo] = (NextPosition[servo] - InitialPosition[servo])/6.0
-        print "Step[servo]: %s" % Step[servo]
+        print("Step[servo]: %s" % Step[servo])
 
-    print "Initial Position: "
-    print InitialPosition
-    print "Next Position: "
-    print NextPosition
+    print("Initial Position: ")
+    print(InitialPosition)
+    print("Next Position: ")
+    print(NextPosition)
 
     for position in range(0,7):
         XML_Out.write('           <PoseClass>\n')
@@ -270,7 +270,7 @@ def XMLPositionPair(XML_Out, InitialPosition, NextPosition): #writes the inside 
             XML_Out.write('</')
             XML_Out.write(ServoNames[servo])
             XML_Out.write('>\n')
-        print CurrentPosition
+        print(CurrentPosition)
 
 def XMLPositionList(XML_Out, Positions):
     ServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
@@ -290,7 +290,7 @@ def XMLPositionList(XML_Out, Positions):
         XML_Out.write('</')
         XML_Out.write(ServoNames[servo])
         XML_Out.write('>\n')
-    print CurrentPosition
+    print(CurrentPosition)
     XML_Out.write('           </PoseClass>\n')
 
 def MakePositionList(Positions, Timing=None):
@@ -330,7 +330,7 @@ def MakePositionList(Positions, Timing=None):
             body[ServoNames[servo]] = Positions[servo]
         except IndexError as ie:
             print("Index error: {}".format(servo))
-    print body, timing
+    print(body, timing)
     return [body, timing]
 
 
@@ -350,17 +350,17 @@ def XMLEnd(XML_Out): #writes end of the xml file
 
 def MergePositions(CurrentPosition, NextPosition):
     UpdatedNextPosition = copy.copy(NextPosition)
-    print "UpdatedNextPosition Before: %s" % UpdatedNextPosition
+    print("UpdatedNextPosition Before: %s" % UpdatedNextPosition)
     for i in range(len(NextPosition)):
         if NextPosition[i] == -1:
                 UpdatedNextPosition[i] = CurrentPosition[i]
-    print "UpdatedNextPosition After: %s" % UpdatedNextPosition
+    print("UpdatedNextPosition After: %s" % UpdatedNextPosition)
     return UpdatedNextPosition
 
 def Merge(PositionSequence1, PositionSequence2):  # this merges two sequences
     MergeSequence = []
     l = max(len(PositionSequence1), len(PositionSequence2))
-    print "PositionSequence1: %s\nPositionSequence2: %s" % (PositionSequence1, PositionSequence2)
+    print("PositionSequence1: %s\nPositionSequence2: %s" % (PositionSequence1, PositionSequence2))
     for i in range(l):
         if i >= len(PositionSequence1):
             MergeSequence = MergeSequence + [PositionSequence2[i]]
@@ -368,37 +368,37 @@ def Merge(PositionSequence1, PositionSequence2):  # this merges two sequences
             MergeSequence = MergeSequence + [PositionSequence1[i]]
         else:
             MergeSequence = MergeSequence + [MergePositions(PositionSequence1[i], PositionSequence2[i])]
-    print "MergeSequence: %s" % MergeSequence
+    print("MergeSequence: %s" % MergeSequence)
     return MergeSequence
 
 def XMLMiddle(XML_Out, PositionSequence):
-    print "Pos sequence: %s" % PositionSequence
+    print("Pos sequence: %s" % PositionSequence)
     CurrentPoServoNames = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW',\
     'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH',\
     'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL',\
     'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
     for i in range(len(PositionSequence)):
         NextPosition = PositionSequence[i]
-        print "NextPosition: %s" % NextPosition
+        print("NextPosition: %s" % NextPosition)
         NextPosition = MergePositions(CurrentPosition, NextPosition)
         # if  i != 0:
             # XMLPositionPair(XML_Out, CurrentPosition, NextPosition)
         XMLPositionList(XML_Out, NextPosition)
         CurrentPosition = NextPosition
-        print "CurrentPosition: %s" % CurrentPosition
+        print("CurrentPosition: %s" % CurrentPosition)
 
 def ProcessPositions(PositionSequence):
-    print "Pos sequence: %s" % PositionSequence
+    print("Pos sequence: %s" % PositionSequence)
     CurrentPosition = [512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512, 512]
     output_sequence = list()
     for i in range(len(PositionSequence)):
         NextPosition = PositionSequence[i]
-        print "NextPosition: %s" % NextPosition
+        print("NextPosition: %s" % NextPosition)
         NextPosition = MergePositions(CurrentPosition, NextPosition)
         # if  i != 0:
         output_sequence += [MakePositionList(NextPosition)]
         CurrentPosition = NextPosition
-        print "CurrentPosition: %s" % CurrentPosition
+        print("CurrentPosition: %s" % CurrentPosition)
 
     # return output_sequence
     return collectSequence(output_sequence)
@@ -423,21 +423,21 @@ def collectSequence(sequence):
             output['Time'] += [150]
             output['PauseTime'] += [200]
         else:
-            output['Time'] += [np.random.normal(loc=70, scale=3)]
-            output['PauseTime'] += [np.random.normal(loc=50, scale=2)]
+            # output['Time'] += [np.random.normal(loc=70, scale=3)]
+            # output['PauseTime'] += [np.random.normal(loc=50, scale=2)]
             # output['Time'] += [70]
             # output['PauseTime'] += [10]
             # output['Time'] += [100 + (np.random.normal() * 100)]
             # output['PauseTime'] += [10 + np.random.random() * 200]
-            # output['Time'] += [100]
-            # output['PauseTime'] += [10]
+            output['Time'] += [100]
+            output['PauseTime'] += [0]
     return output
 
 def Repeat(n, s):
     if n == 0:
         return []
     else:
-        print "s: %s" % s
+        print("s: %s" % s)
         return Repeat(n - 1, s) + s
 
 def Random():
@@ -497,6 +497,6 @@ def JimmyDo(seq):
 # # legs = s['running_start'] + s['running_start_2'] + Repeat(2, s['running_right_forward_1'] + s['running_right_forward_2'] + s['running_right_forward_3'] + s['running_left_forward_1'] + s['running_left_forward_2'] + s['running_left_forward_3'])
 
 # # JimmyDo(s['stand'] + Merge(arms, legs))
-# print "Arms: %s" % arms
+# print("Arms: %s" % arms)
 # JimmyDo(s['stand'] + arms)
 # # JimmyDo(s['stand'] + s['right_handshake'] + s['left_handshake'])
