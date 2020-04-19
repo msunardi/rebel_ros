@@ -220,13 +220,15 @@ def merge(*args):
 
 def subtract(*args):
     # Last element is the thing to subtract from the sequence
+
     rprint("[SUBTRACT] argsL {}", list(args))
     if len(args) > 2:
         raise ValueError('[SUBTRACT] subtraction can only have two arguments.')
     to_subtract = [f.strip() for f in args[1].split(' ') if f != '']
     subtract_from = [f.strip() for f in args[0].split(' ') if f != '']
-    rprint("[SUBTRACT] to subtract: {}".format(to_subtract))
-    rprint("[SUBTRACT] subtract from: {}".format(subtract_from))
+    if DEBUG:
+        rprint("[SUBTRACT] to subtract: {}".format(to_subtract))
+        rprint("[SUBTRACT] subtract from: {}".format(subtract_from))
     for sub in to_subtract:
         while sub in subtract_from:
             subtract_from.pop(subtract_from.index(sub))
