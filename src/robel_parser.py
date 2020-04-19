@@ -37,7 +37,7 @@ acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'd
         # 'wave3_0', 'wave3_1', 'wave3_2', 'wave3_3', 'wave3_4', 'wave3_5', 'wave3_6', 'jump1_0', 'jump1_1', 'jump1_2', 'jump1_3', 'jump1_4', 'jump1_5', 'jump1_6', 'pickupbox_0', 'pickupbox_1', 'pickupbox_2', 'pickupbox_3', 'pickupbox_4', 'pickupbox_5', 'victorypose_0', 'victorypose_1', 'victorypose_2', 'victorypose_3', 'victorypose_4', 'victorypose_5', 'victorypose_6', 'victorypose_copy1_0', 'victorypose_copy1_1', 'victorypose_copy1_2', 'victorypose_copy1_3', 'victorypose_copy1_4', 'victorypose_copy1_5', 'victorypose_copy1_6', 'wait_0_0', 'wait_0_1', 'wait_0_2', 'wait_0_3', 'wait_0_4', 'wait_0_5', 'wait_0_6', 'wait_1_0', 'wait_1_1', 'wait_1_2', 'wait_1_3', 'wait_1_4', 'wait_1_5', 'wait_2_0', 'wait_2_1', 'wait_2_2', 'wait_2_3', 'wait_2_4', 'wait_2_5', 'wait_2_6', 'alas_0', 'alas_1', 'alas_2', 'alas_3', 'alas_4', 'alas_5', 'alas_6', 'alas_mirror_0', 'alas_mirror_1', 'alas_mirror_2', 'alas_mirror_3', 'alas_mirror_4', 'alas_mirror_5', 'alas_mirror_6', 'alas_2_0', 'alas_2_1', 'alas_2_2', 'alas_2_3', 'alas_2_4', 'alas_2_5', 'alas_2_6', 'nope_nope_0', 'nope_nope_1', 'nope_nope_2', 'nope_nope_3', 'nope_nope_4', 'nope_nope_5', 'nope_nope_6',\
         # 'wave3', 'jump1', 'pickupbox', 'victorypose', 'victorypose_copy', 'wait_0', 'wait_1', 'wait_2', 'alas', 'alas_mirror', 'alas2', 'nope', 'waiting']
 ops = ['+', '&', '*']
-extension = ['|', '~'] 	# concurrent/parallel
+extension = ['-', '|', '~'] 	# subtraction/concurrent/parallel
 ops = ops + extension
 Symbol = str
 Env = dict
@@ -218,6 +218,22 @@ def merge(*args):
     result = "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
     return result
 
+def subtract(*args):
+    # Last element is the thing to subtract from the sequence
+    rprint("[SUBTRACT] argsL {}", list(args))
+    if len(args) > 2:
+        raise ValueError('[SUBTRACT] subtraction can only have two arguments.')
+    to_subtract = [f.strip() for f in args[1].split(' ') if f != '']
+    subtract_from = [f.strip() for f in args[0].split(' ') if f != '']
+    rprint("[SUBTRACT] to subtract: {}".format(to_subtract))
+    rprint("[SUBTRACT] subtract from: {}".format(subtract_from))
+    for sub in to_subtract:
+        while sub in subtract_from:
+            subtract_from.pop(subtract_from.index(sub))
+    rprint("[SUBTRACT] result: {}".format(subtract_from))
+    return ' '.join(subtract_from)
+
+
 def predicate(*args):
     # If-then [-else]
     test = args[0]
@@ -245,6 +261,7 @@ def standard_env():
         '|': concurrent,
         '~': merge,
         '?': predicate,
+        '-': subtract,
         'number?': lambda x: isinstance(x, Number),
         'list?': lambda x: isinstance(x, List)
         })
@@ -357,6 +374,7 @@ def parsex(exp):
     '''
 #    print "Evaluating: %s" % (exp)
     tokens = parse(exp)
+    word = ''
     if DEBUG:
         print("Evaluating: %s" % (exp))
         print("PARSEX(): Tokens: {}".format(tokens))
@@ -364,7 +382,9 @@ def parsex(exp):
     if DEBUG:
         print("PARSEX(): Word: {}".format(word))
         print("Displaying >> %s" % (word))
-    word = ' '.join(word.split())   # Get rid of in-between whitespaces
+
+    if len(word) > 0:
+        word = ' '.join(word.split())   # Get rid of in-between whitespaces
     return word
 
 def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
@@ -462,7 +482,7 @@ def concurrent_expansion(sequence, vocab):
     # 3. Combine into one structure
     return loo, collect_sequence
 
-# Joints are given as argument for unittest; default value is all joints. 
+# Joints are given as argument for unittest; default value is all joints.
 def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']):
     '''
     sequence: e.g.
@@ -473,9 +493,9 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     all_joints = ['R_SHO_PITCH', 'L_SHO_PITCH', 'R_SHO_ROLL', 'L_SHO_ROLL', 'R_ELBOW', 'L_ELBOW', 'R_HIP_YAW', 'L_HIP_YAW', 'R_HIP_ROLL', 'L_HIP_ROLL', 'R_HIP_PITCH', 'L_HIP_PITCH', 'R_KNEE', 'L_KNEE', 'R_ANK_PITCH', 'L_ANK_PITCH', 'R_ANK_ROLL', 'L_ANK_ROLL', 'HEAD_PAN', 'HEAD_TILT']
 
     rprint("[MERGE_PROCESSING]: sequence: {}", sequence)
-    
+
     split_merge = [seq.strip() for seq in sequence.split(';') if seq != '']
-    
+
     rprint("[MERGE_PROCESSING]: split_merge: {}", split_merge)
 
     m_weights = None  # placeholder for merge weights
@@ -485,10 +505,10 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
         if not vocab:
             # Return the split_merge
             return split_merge
-        
+
         # Split m into individual events
         m_split_events = m.split('~')
-        
+
         # Check if weights are provided at the last element
         if m_split_events[-1] not in vocab:
             try:
@@ -513,11 +533,11 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
         m_collect_events = []
         m_sequence = []
         for m_event in m_split_events:
-            if m_event not in vocab: 
+            if m_event not in vocab:
                 m_collect_events = None  # Clear memory
                 rprint("[MERGE PROCESSING]: event {} is not in vocab", m_event)
                 return split_merge
-            
+
             # Otherwise, expand the event
             # preloo gives the joint positions sequences
             preloo, _ = expand_word(m_event, vocab, loo=[], expansion=[])
@@ -533,11 +553,11 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
 #            m_collect_events.append(pd.DataFrame(loo, columns=joints))
             # 2. Pick subset of data according to 'joints' argument
             m_collect_events.append(loo[joints])
-                    
-    # What if there's only one event?        
+
+    # What if there's only one event?
     # What if there are only two events?
     # What if there are more than two events?
-    if DEBUG: 
+    if DEBUG:
         rprint("[MERGE PROCESSING]: m_collect_events: \n{}\n{}", *m_collect_events)
         rprint("[MERGE PROCESSING]: m_sequence: \n{}", m_sequence)
         rprint("[MERGE PROCESSING]: expansion: \n{}", expansion)
@@ -545,7 +565,7 @@ def merge_processing(sequence, vocab, joints=['R_SHO_PITCH', 'L_SHO_PITCH', 'R_S
     for j in joints:
         if DEBUG: rprint("[MERGE PROCESSING]: j: {}", j)
         merged[j] = merge_proc_data(*m_collect_events, joint=j, weights=m_weights)
-        
+
     return m_sequence, expansion
 
 def merge_proc_data(*all_data, **kwargs):
