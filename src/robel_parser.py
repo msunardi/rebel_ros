@@ -242,7 +242,7 @@ def subtract(*args):
                 print('ah')
                 seq, expans = expand_word2(Xvocab[g], Xvocab, expans)
                 rprint("[SUBTRACT] {} \n{}".format(seq, expans))
-                arggh.extend(seq)
+                arggh.extend(expans[0].split())
             else:
                 print('eh')
                 arggh.append(g)
