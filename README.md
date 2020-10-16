@@ -122,9 +122,9 @@ python test.py
 ```
 
 The files you need for the test program to run are:
-- `robel_parser.py` - The main program containing the parser, symbol definitions, and operator definitions. If you want to reuse REBeL in your own code, this is the one you must have.
-- `makana_jimmy_program.py` - A Python script originally created by Makana Burch for use with HROS-1 robot. It has been modified for use with REBeL.
-- `test.py` - The test script.
+- [`robel_parser.py`](https://github.com/msunardi/rebel_ros/blob/master/src/robel_parser.py) - The main program containing the parser, symbol definitions, and operator definitions. If you want to reuse REBeL in your own code, this is the one you must have.
+- [`makana_jimmy_program.py`](https://github.com/msunardi/rebel_ros/blob/master/src/makana_jimmy_program.py) - A Python script originally created by Makana Burch for use with HROS-1 robot. It has been modified for use with REBeL.
+- [`test.py`](https://github.com/msunardi/rebel_ros/blob/master/src/test.py) - The test script.
 
 The rest of the files in this repository is for use with ROS.
 
@@ -140,4 +140,4 @@ To evaluate an expression, call the service either from command line or a ROS no
 $ rosservice call '(& a b c)'
 ```
 
-To call from a node, see the `rebel_client.py` example.
+To call from a node, see the [`rebel_client.py`](https://github.com/msunardi/rebel_ros/blob/master/src/rebel_client.py) example.
