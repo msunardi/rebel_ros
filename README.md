@@ -2,6 +2,36 @@
 
 ROS package for REBeL
 
+## Quick Start
+
+Run the test program to try out different expressions and see their outcomes. (Tested on Python 3.6.8)
+
+```
+python test.py
+```
+
+The files you need for the test program to run are:
+- [`robel_parser.py`](https://github.com/msunardi/rebel_ros/blob/master/src/robel_parser.py) - The main program containing the parser, symbol definitions, and operator definitions. If you want to reuse REBeL in your own code, this is the one you must have.
+- [`makana_jimmy_program.py`](https://github.com/msunardi/rebel_ros/blob/master/src/makana_jimmy_program.py) - A Python script originally created by Makana Burch for use with HROS-1 robot. It has been modified for use with REBeL.
+- [`test.py`](https://github.com/msunardi/rebel_ros/blob/master/src/test.py) - The test script.
+
+The rest of the files in this repository is for use with ROS.
+
+## To Use with ROS
+
+To use REBeL with ROS, run the server node:
+```
+rosrun rebel_ros rebel_server.py
+```
+
+To evaluate an expression, call the service either from command line or a ROS node. From command line:
+```
+$ rosservice call '(& a b c)'
+```
+
+To call from a node, see the [`rebel_client.py`](https://github.com/msunardi/rebel_ros/blob/master/src/rebel_client.py) example.
+
+
 ## REBeL (Robot Expressive Behavior Language)
 
 Create robot behaviors (sequence of actions) using algebraic operators.
@@ -113,31 +143,3 @@ Arguments for an operation can be another behavior expression. The nested behavi
 - Repetition of concatenation: `'(* (& a b))'` Outcomes: `''`(empty string) OR `'a b'` OR `'a b a b'` OR `'a b a b a b'` and so on.
 - Repetition of union: `'(* (+ x y))'` Outcomes: `''`(empty string) OR `'x'` OR `'y'` OR `'x y'` OR `'x x'` OR `'x y x'` OR `'x x y'` and so on.
 
-## Quick Start
-
-Run the test program to try out different expressions and see their outcomes. (Tested on Python 3.6.8)
-
-```
-python test.py
-```
-
-The files you need for the test program to run are:
-- [`robel_parser.py`](https://github.com/msunardi/rebel_ros/blob/master/src/robel_parser.py) - The main program containing the parser, symbol definitions, and operator definitions. If you want to reuse REBeL in your own code, this is the one you must have.
-- [`makana_jimmy_program.py`](https://github.com/msunardi/rebel_ros/blob/master/src/makana_jimmy_program.py) - A Python script originally created by Makana Burch for use with HROS-1 robot. It has been modified for use with REBeL.
-- [`test.py`](https://github.com/msunardi/rebel_ros/blob/master/src/test.py) - The test script.
-
-The rest of the files in this repository is for use with ROS.
-
-## To Use with ROS
-
-To use REBeL with ROS, run the server node:
-```
-rosrun rebel_ros rebel_server.py
-```
-
-To evaluate an expression, call the service either from command line or a ROS node. From command line:
-```
-$ rosservice call '(& a b c)'
-```
-
-To call from a node, see the [`rebel_client.py`](https://github.com/msunardi/rebel_ros/blob/master/src/rebel_client.py) example.
