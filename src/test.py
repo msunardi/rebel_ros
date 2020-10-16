@@ -3,6 +3,8 @@ import robel_parser as rp
 from makana_jimmy_program import position_library
 
 vocab = position_library
+
+# Create new symbols that can be expanded as expressions and/or contain nested expressions.
 vocab['muscle_combo_1'] = '(* (& muscle_flex_1 muscle_flex_2 muscle_flex_3 muscle_flex_4 muscle_flex_5 muscle_flex_6 muscle_flex_7) 0.5)'
 vocab['muscle_combo_2'] = '(* (& muscle_flex_7 muscle_flex_6 muscle_flex_5 muscle_flex_4 muscle_flex_3 muscle_flex_2 muscle_flex_1) 0.5)'
 vocab['combo_1'] = '(+ muscle_combo_1 muscle_combo_2)'
@@ -37,7 +39,7 @@ vocab['alas2'] = '(& alas_2_0 alas_2_1 alas_2_2 alas_2_3 alas_2_4 alas_2_5 alas_
 vocab['nope'] = '(& nope_nope_0 nope_nope_1 nope_nope_2 nope_nope_3 nope_nope_4 nope_nope_5 nope_nope_6 stand)'
 vocab['waiting'] = '(* (+ yawn nope wait_0 wait_1) 0.7)'
 
-# Add new keys
+# Add new keys to the "acts" Alphabet
 rp.acts += vocab.keys()
 
 def test_probabilities(exp, n=1000):
@@ -72,16 +74,45 @@ def test_probabilities(exp, n=1000):
 DEBUG=True
 
 if __name__=='__main__':
+
+    ################################
+    # See Debug messages 
+    ################################
+    # rp.DEBUG = True
+
+    ################################
+    # Try a single expression to parse
+    ################################
+
     # to_parse = '(+ a b c d e 0.2)'
     # to_parse = '(~ muscle_combo_1 oops waiting)'
-    # rp.parsex(to_parse)
-    to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', '(+ a b c d 0.4)', '(+ a b c d)', '(+ (& a b) c d [0.2 0.3 0.5])']
     # to_parse = ['(+ (& a b x y z 0.4) c d [0.2 0.3 0.5])']
-    out = []
+    # rp.parsex(to_parse)
+
+    ################################
+    # Try multiple expressions to parse
+    ################################
+    to_parse = ['(+ a b c d [0.5 0.1 0.2 0.2])', 
+        '(+ a b c d 0.4)', 
+        '(+ a b c d)', 
+        '(& a x d)',
+        '(+ (& a v g) (& x z d))',
+        '(+ (& a b) c d [0.2 0.3 0.5])',
+        '(* a 2.5)']
+    
+    for p in to_parse:
+        rp.parsex(p)
+
+    ################################
+    # Test multiple times to see probability distribution (uncomment 5 lines below)
+    ################################
     # for i in range(100):
     #     for p in to_parse:
     #         out.append(rp.parsex(p))
     # print out
-    x = test_probabilities(to_parse[2])
+    # x = test_probabilities(to_parse[2])
 
+    ################################
+    # Test with motion data ('oops', 'wave3' are symbols that contain motion data)
+    ################################
     # rp.expand_sequence('(& waiting (+ oops wave3))', vocab)

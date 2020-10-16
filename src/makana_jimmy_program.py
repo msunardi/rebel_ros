@@ -1,3 +1,4 @@
+# Created by Makana Burch for HROS-1 robot
 import numpy as np
 import random
 import copy

@@ -2,6 +2,12 @@ import random, math
 from numpy.random import choice as npchoice
 DEBUG = False
 
+#########################
+# SYMBOLS (also called 'Alphabet') - the list of symbols that REBeL can recognize
+# chars : alphabet letters
+# acts : names of poses for HROS-1 robot. Can be extended to poses or other commands for other robots.
+#########################
+
 chars = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z',
          'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
 acts = ['foo', 'bar', 'baz', 'right_arm', 'left_arm', 'turn_head_left', 'up', 'down', 'left', 'right', 'wander', \
@@ -37,6 +43,10 @@ Env = dict
 Number = (int, float)
 List = (list, tuple)
 
+###############
+# Operator definitions
+###############
+
 # def union(action1, action2, p=0.5):
 #     if DEBUG:
 #         print "%s, %s, %s" % (action1, action2, p)
@@ -52,50 +62,62 @@ List = (list, tuple)
 #             return "%s" % action1
 #     return "%s%s" % (action1, action2)
 
-def union(*args):
-    if DEBUG:
-        print "[UNION] args:", args
-    # args = [a.strip() if type(a) == str else a for a in args]
+# def union(*args):
+#     if DEBUG:
+#         print "[UNION] args:", args
+#     # args = [a.strip() if type(a) == str else a for a in args]
 
-    action1 = args[0]
-    action2 = args[1:]
-    p = 0.5
-    try:
-        if type(args[-1]) == float:
-            p = args[-1]
-            if len(args[:-1]) == 2:
-                action2 = args[1]
-            else:
-                action2 = args[1:-1]
+#     action1 = args[0]
+#     action2 = args[1:]
+#     p = 0.5
+#     try:
+#         if type(args[-1]) == float:
+#             p = args[-1]
+#             if len(args[:-1]) == 2:
+#                 action2 = args[1]
+#             else:
+#                 action2 = args[1:-1]
 
-            # clean up args
-            for c in action2:
-                c = c.replace('\n', '').replace('\r', '')
+#             # clean up args
+#             for c in action2:
+#                 c = c.replace('\n', '').replace('\r', '')
 
-    except ValueError as ve:
-        # else:
-        #   action2 = args[1:]
-        pass
+#     except ValueError as ve:
+#         # else:
+#         #   action2 = args[1:]
+#         pass
 
-    check_instances = [isinstance(arg, Symbol) for arg in action2[:-1]]
-    if not all(check_instances):
-        raise SyntaxError("Invalid action types!  %s." % check_instances)
+#     check_instances = [isinstance(arg, Symbol) for arg in action2[:-1]]
+#     if not all(check_instances):
+#         raise SyntaxError("Invalid action types!  %s." % check_instances)
 
-    if DEBUG: print "[UNION] p: %s" % p
+#     if DEBUG: print "[UNION] p: %s" % p
 
-    if 0.0 < p < 1.0 and random.random() >= p:
-        if DEBUG:
-            print "[UNION] action2: %s" % [action2]
+#     if 0.0 < p < 1.0 and random.random() >= p:
+#         if DEBUG:
+#             print "[UNION] action2: %s" % [action2]
 
-        if type(action2) == tuple and len(action2) >= 2:
-            a2 = list(action2) + [p]
-            return union(*a2)
-        else:
-            return action2[0]
-    return action1
+#         if type(action2) == tuple and len(action2) >= 2:
+#             a2 = list(action2) + [p]
+#             return union(*a2)
+#         else:
+#             return action2[0]
+#     return action1
 
-
+# UNION Operation
 def union2(*args):
+    """
+    Randomly choose one symbol. Symbol: '+'.
+
+    Parameters:
+    *args (list): a list of symbols. If last argument is a float, it is used as probability.
+
+    Example:
+    >>> parsex('(+ a b)')
+    a
+    >>> parsex('(+ a b)')
+    b
+    """
     if DEBUG:
         print "[UNION] args:", args
     # args = [a.strip() if type(a) == str else a for a in args]
@@ -104,21 +126,21 @@ def union2(*args):
 
     try:
         # Probability is given as list
-        if isinstance(args[-1], List):
+        if isinstance(args[-1], List): # If last argument is a list of float, those are probabilities for choosing symbols.
             p = args[-1]
             actions = args[:-1]
             if len(p) != len(actions):
                 raise Exception('List of probabilities must have the same size as the number of arguments.')
 
         elif isinstance(args[-1], Number):
-            px = args[-1]   # The probability is one number; is assigned to the first argument
+            px = args[-1]   # If the last argument is one number, it is the probability for the first symbol; the remainder has probability 1-px.
             actions = args[:-1]
             py = 1.0 - px
             pz = py / (len(actions) - 1)  # The probability of the remainder of arguments is equally distributed
             p = [px] + [pz]*(len(actions) - 1)
 
     except TypeError as te:
-        if type(args[-1]) == float:
+        if type(args[-1]) == float: # If last argument is a float, it is used as probability.
             p = args[-1]
             actions = args[:-1]
         else:
@@ -133,9 +155,24 @@ def union2(*args):
         print "p: ", p
     return npchoice(actions, p=p)
 
-
-
+# CONCATENATION
 def concatenate(*args):
+    """
+    Arrange symbols in a sequence. If last argument is a number/float, it is probability of evaluating the next symbol in *args.
+
+    Parameters:
+    *args (list): list of symbols to put in sequence
+
+    Example:
+    >>> parsex('(& a b c)')
+    a b c
+    >>> parsex('(& x c d)')
+    x c d
+    >>> parsex('(& a b c 0.5)')
+    a b c   # Second and third symbols are evaluated
+    >>> parsex('(& a b c 0.5)')
+    a       # Second and third symbols are not evaluated
+    """
     if DEBUG:
         print "[CONCATENATE] args: %s" % list(args)
     p = 1.0
@@ -167,31 +204,53 @@ def concatenate(*args):
 # instead it's currently evaluating (a+b) first, then repeats that
 # Update 2/4/15: FIXED!
 # Update 5/3/15: argument is now float (probability)
-def repeat(expression, r=0.5):
+# REPETITION/
+def repeat(expression, p=0.5):
+    """
+    Repeat symbols or re-evaluate expressions.
+
+    Parameters:
+    expression (string): a single symbol (no parenthesis), expression (a string with parenthesis).
+    r (float): probability of evaluating expression. Default: 0.5 if not specified.
+
+    Example:
+    >>> parsex('(* a)')  # p = 0.5 (repeat zero or more times)
+    a a a
+    >>> parsex('(* a 2.5)')  # p = 2.5 (will repeat at least 2 times)
+    a a
+    >>> parsex('(* a 2.5)')
+    a a a a a
+    """
     if DEBUG:
-        print "%s, %s" % (expression, r)
-    # if not isinstance(r, int) or r < 0:
-    # 	raise SyntaxError("What the hell, man? What. The. Hell.")
-    # if r > 4 and r <= 10:
-    # 	print "%s times? Are you sure? OK ..." % (r)
-    # elif r > 10:
-    # 	print "%s times? Ha ha, yeah no, 10 it is." % (r)
-    # 	r = 10
+        print "%s, %s" % (expression, p)
+    # if not isinstance(p, int) or p < 0:
+    # 	raise SyntaxError("Invalid probability type")
+    # if p > 4 and p <= 10:
+    # 	print "Will repeat %s times" % (p)
+    # elif p > 10:
+    # 	print "%s is too many. Will repeat 10 times." % (p)
+    # 	p = 10
     out = ''
     # for i in range(random.randint(0,r)):
     # 	out = '%s%s' % (out, eval(expression))	# evaluate expression each repetition
-    if r - 1.0 >= 0.0:
+    if p - 1.0 >= 0.0:
         # out = '%s%s%s' % (out, eval(expression), repeat(expression, r-1.0))
-        out = '%s' % (" ".join([out, eval(expression), repeat(expression, r - 1.0)]))
+        out = '%s' % (" ".join([out, eval(expression), repeat(expression, p - 1.0)]))
         return out
 
-    if random.random() <= r:
+    if random.random() <= p:
         # out = '%s%s%s' % (out, eval(expression), repeat(expression, r))
-        out = '%s' % (" ".join([out, eval(expression), repeat(expression, r)]))
+        out = '%s' % (" ".join([out, eval(expression), repeat(expression, p)]))
     return out
 
+############################
+# EXPERIMENTAL/NOT YET IMPLEMENTED
+############################
 
 def concurrent(*args):
+    """
+    Execute two or more things at the same time/concurrently.
+    """
     if DEBUG:
         print "[CONCURRENT] args: %s" % list(args)
     # return action1 + '|' + action2
@@ -201,6 +260,9 @@ def concurrent(*args):
 
 
 def merge(*args):
+    """
+    Combine two or more things into one - if possible.
+    """
     if DEBUG:
         print "[MERGE] args: %s" % list(args)
     if len(args) <= 1:
@@ -208,6 +270,9 @@ def merge(*args):
     return "~".join([c.strip() for c in [eval(args[0])] + [merge(*args[1:])]])
 
 def predicate(*args):
+    """
+    Execute things under certain conditions.
+    """
     # If-then [-else]
     test = args[0]
     if len(args) > 3:
@@ -223,6 +288,9 @@ def predicate(*args):
             return eval(args[2])
     return None
 
+#####################
+# PARSING METHODS
+#####################
 # Source: norvig.com/lispy.html
 def standard_env():
     env = Env()
@@ -338,7 +406,17 @@ def eval(x, env=global_env):
             print "args: %s" % (args)
     return proc(*args)
 
+
 def parsex(exp):
+    """
+    Main parsing method. Call this to evaluate an expression.
+    An expression is a string which starts with ( and ends with ).
+    An expression with only one symbol does not use parentheses.
+    An expression is written in this format: '(<operator symbol> <symbol1> <symbol2> ... <symbolN> <optional: probability (float)>)'
+
+    Returns:
+    A string 
+    """
     print "Evaluating: %s" % (exp)
     tokens = parse(exp)
     if DEBUG:
@@ -349,7 +427,11 @@ def parsex(exp):
     print "Displaying >> %s" % (word)
     return word
 
-def expand_sequence(sequence, vocab, loo=[], expansion=[]): #func, vocab):
+def expand_sequence(sequence, vocab, loo=[], expansion=[]):
+    """
+    Parses an expression and expand the symbols into values if applicable.
+    e.g. a symbol = a robot pose/joint angles
+    """
     word = parsex(sequence)
     expansion += [word]
     print "Word: ", word
